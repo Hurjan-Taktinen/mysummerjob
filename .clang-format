@@ -1,0 +1,152 @@
+---
+ColumnLimit:     80
+IndentWidth:     4
+TabWidth:        4
+
+# For example where public, protected and private statements begin
+AccessModifierOffset: -4
+
+# For fiddling with class ctor initializer & assignment lists
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 8
+
+# Settings regarding other languages than C++ removed
+Language: Cpp
+
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveMacros: false
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: Right
+AlignOperands: true
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: true
+AllowAllConstructorInitializersOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
+
+# None, InlineOnly, Empty, Inline, All
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortLambdasOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: false
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+# None, NonAssignment, All
+BreakBeforeBinaryOperators: NonAssignment
+
+# BeforeColon, BeforeComma, AfterColon
+# AfterColon matches existing codebase but BeforeColon is superior!
+BreakInheritanceList: AfterColon
+BreakConstructorInitializers: AfterColon
+
+BreakBeforeBraces: Custom
+BreakBeforeInheritanceComma: false
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializersBeforeComma: false
+BreakStringLiterals: true
+# CommentPragmas:  '^ IWYU pragma:'
+CompactNamespaces: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+DisableFormat: false
+ExperimentalAutoDetectBinPacking: false
+
+FixNamespaceComments: true
+
+ForEachMacros:
+  # - CONT_EACH
+  # - BOOST_FOREACH
+IncludeBlocks: Preserve
+# IncludeCategories:
+#   - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+#     Priority:        2
+#   - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+#     Priority:        3
+#   - Regex:           '.*'
+#     Priority:        1
+# IncludeIsMainRegex: '(Test)?$'
+IndentCaseLabels: false
+IndentPPDirectives: None
+
+# If false, may sometimes break after return type
+IndentWrappedFunctionNames: true
+
+KeepEmptyLinesAtTheStartOfBlocks: true
+MacroBlockBegin: ''
+MacroBlockEnd: ''
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None
+PenaltyBreakAssignment: 1000
+PenaltyBreakBeforeFirstCallParameter: 0
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakString: 1000
+PenaltyBreakTemplateDeclaration: 10
+
+PenaltyExcessCharacter: 1000000
+
+# Default: 60, make it really hard not to break before first param
+PenaltyReturnTypeOnItsOwnLine: 1000000
+
+PointerAlignment: Left
+ReflowComments: true
+
+# This would mess up includes if they are not grouped
+SortIncludes: false
+
+SortUsingDeclarations: true
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: Never
+
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: false
+SpacesInContainerLiterals: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+Standard: Cpp11
+StatementMacros:
+  - TEST
+  - SUITE
+  - TEST_FIXTURE
+  - DEBUG
+  - INFO
+  - WARNING
+  - Q_UNUSED
+  - QT_REQUIRE_VERSION
+UseTab: Never
+...
+
