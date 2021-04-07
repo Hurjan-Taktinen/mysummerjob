@@ -9,15 +9,20 @@ project('mysummerjob',
   version : '0.0.1',
   license: 'MIT')
 
-build_deps = []
+## Subprojects ##
+spdlog = subproject('spdlog')
 
+## Build dependencies ##
+build_deps = []
+build_deps += spdlog.get_variable('spdlog_dep')
+
+## Include directories ##
 inc = []
 inc += include_directories('include')
-inc += include_directories('external')
 
-sources = []
 cpp_compile_args = []
 
+sources = []
 subdir('data')
 subdir('src')
 
