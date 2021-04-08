@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
@@ -27,11 +27,17 @@ jobs:
 
       - name: Install Deps
         run: python3 -m pip install meson ninja
-        
+
+        # GLFW requres these for X11 builds
+        # run: apt install xorg-dev libglu1-mesa-dev
+
       # Build step
       - name: Build
         run: |
           meson build
           cd build
-          ninja
-        
+          ninja tests
+
+      - name: Run Unittests
+        run: ./tests
+
