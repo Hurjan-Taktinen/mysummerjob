@@ -32,25 +32,39 @@ vulkan_validationlayers = subproject('vulkan-validationlayers')
 
 ## Build dependencies ##
 build_deps = []
-build_deps += catch2.get_variable('catch2_dep')
 build_deps += glfw_subpro.dependency('glfw')
 build_deps += glm.get_variable('glm_dep')
 build_deps += spdlog.get_variable('spdlog_dep')
 build_deps += vulkan_headers.get_variable('vulkan_headers_dep')
 build_deps += vulkan_validationlayers.get_variable('vulkan_validationlayers_dep')
 
+unittest_deps = []
+unittest_deps += catch2.get_variable('catch2_dep')
+unittest_deps += glm.get_variable('glm_dep')
+
 ## Include directories ##
 inc = []
 inc += include_directories('include')
 
-cpp_compile_args = []
+cpp_compile_args = [
+  '-DGLM_FORCE_RADIANS',
+  '-DGLM_FORCE_DEPTH_ZERO_TO_ONE',
+
+  # for GLM, TODO make this per-project compile argument
+  '-Wno-deprecated-volatile']
 
 sources = []
+unittest_sources = []
 subdir('data')
 subdir('src')
+subdir('unittests')
 
 executable('mysummerjob', sources,
   include_directories : inc,
   dependencies : build_deps,
   cpp_args : cpp_compile_args)
 
+executable('tests', unittest_sources,
+  include_directories : inc,
+  dependencies : unittest_deps,
+  cpp_args : cpp_compile_args)
