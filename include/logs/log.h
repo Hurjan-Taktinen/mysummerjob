@@ -10,6 +10,8 @@
 #define WARNING(...) Log::getLogger()->warn(__VA_ARGS__);
 #define CRITICAL(...) Log::getLogger()->critical(__VA_ARGS__);
 
+using Logger = std::shared_ptr<spdlog::logger>;
+
 class Log final
 {
 public:
