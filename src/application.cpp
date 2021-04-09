@@ -14,6 +14,7 @@ Application::~Application()
 void Application::init()
 {
     m_Log = Log::create("application");
+    m_BaseConfig = config::Config::getBaseConfig();
 
     try
     {
@@ -35,7 +36,7 @@ void Application::initilizeGLFW()
     glfwSetErrorCallback(onErrorCallback);
     glfwInit();
 
-    if(!glfwVulkanSupported())
+    if(glfwVulkanSupported() == GLFW_FALSE)
     {
         m_Log->warn("No Vulkan support! Exiting... ");
         throw std::runtime_error("No vulkan support");
@@ -56,12 +57,18 @@ void Application::initilizeGLFW()
             m_MonitorResolution.height);
 
     m_Window = std::shared_ptr<GLFWwindow>(
-            glfwCreateWindow(800, 800, "MySummerJob the Game", nullptr, nullptr),
+            glfwCreateWindow(
+                    m_BaseConfig.width,
+                    m_BaseConfig.height,
+                    "MySummerJob the Game",
+                    nullptr,
+                    nullptr),
             [](GLFWwindow* window) { glfwDestroyWindow(window); });
 
     assert(m_Window);
 
-    int width = 0, height = 0;
+    int width = 0;
+    int height = 0;
     glfwGetWindowSize(m_Window.get(), &width, &height);
 
     // If these are zero, window is minimized?

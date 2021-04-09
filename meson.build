@@ -45,6 +45,7 @@ unittest_deps += glm.get_variable('glm_dep')
 ## Include directories ##
 inc = []
 inc += include_directories('include')
+inc += include_directories('external')
 
 cpp_compile_args = [
   '-DGLM_FORCE_RADIANS',
