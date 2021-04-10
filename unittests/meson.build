@@ -1,2 +1,3 @@
 unittest_sources += files(
-  'glm_sanity_check.cpp')
+  'glm_sanity_check.cpp',
+  'utilityfunctions.cpp')

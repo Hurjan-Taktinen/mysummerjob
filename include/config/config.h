@@ -34,6 +34,7 @@ public:
     [[nodiscard]] static auto getBaseConfig() { return m_BaseConfig; }
 
 private:
+    inline static logs::Logger m_Log;
     inline static std::string m_ConfigFilePath = "data/config.ini";
     inline static mINI::INIStructure m_IniStruct;
 

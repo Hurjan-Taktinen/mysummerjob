@@ -5,11 +5,13 @@
 #include <memory>
 #include <string>
 
-#define TRACE(...) Log::getLogger()->trace(__VA_ARGS__);
-#define INFO(...) Log::getLogger()->info(__VA_ARGS__);
-#define WARNING(...) Log::getLogger()->warn(__VA_ARGS__);
-#define CRITICAL(...) Log::getLogger()->critical(__VA_ARGS__);
+#define TRACE(...) logs::Log::getLogger()->trace(__VA_ARGS__);
+#define INFO(...) logs::Log::getLogger()->info(__VA_ARGS__);
+#define WARNING(...) logs::Log::getLogger()->warn(__VA_ARGS__);
+#define CRITICAL(...) logs::Log::getLogger()->critical(__VA_ARGS__);
 
+namespace logs
+{
 using Logger = std::shared_ptr<spdlog::logger>;
 
 class Log final
@@ -29,3 +31,5 @@ public:
 private:
     static inline std::shared_ptr<spdlog::logger> m_Console;
 };
+
+} // namespace logs

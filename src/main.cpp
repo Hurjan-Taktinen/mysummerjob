@@ -7,7 +7,7 @@
 
 int main(int argc, const char** argv)
 {
-    Log::init();
+    logs::Log::init();
     INFO("MySummerJob Game ({}.{}.{})", 0, 0, 1);
 
     std::string_view optionalConfigPath;
