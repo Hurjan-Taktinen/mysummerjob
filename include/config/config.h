@@ -4,7 +4,6 @@
 #include "logs/log.h"
 
 #include <charconv>
-#include <fmt/format.h>
 #include <string>
 #include <string_view>
 

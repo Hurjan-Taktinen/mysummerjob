@@ -47,12 +47,10 @@ inc = []
 inc += include_directories('include')
 inc += include_directories('external')
 
+# for GLM, TODO make this per-project compile argument
 cpp_compile_args = [
   '-DGLM_FORCE_RADIANS',
-  '-DGLM_FORCE_DEPTH_ZERO_TO_ONE',
-
-  # for GLM, TODO make this per-project compile argument
-  '-Wno-deprecated-volatile']
+  '-DGLM_FORCE_DEPTH_ZERO_TO_ONE']
 
 cpp_link_args = [
   '-ldl']
