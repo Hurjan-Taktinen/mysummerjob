@@ -8,26 +8,29 @@ namespace config
 
 void Config::init(std::string_view optionalConfigPath)
 {
+    m_Log = logs::Log::create("Config");
+
     if(!optionalConfigPath.empty()
        && std::filesystem::exists(optionalConfigPath))
     {
-        INFO("Optional config file given ({})", optionalConfigPath);
+        m_Log->info("Optional config file given ({})", optionalConfigPath);
         m_ConfigFilePath = optionalConfigPath;
     }
 
     mINI::INIFile file(m_ConfigFilePath);
     if(!file.read(m_IniStruct))
     {
-        WARNING("[Config] Failed to open config file, generating one with "
-                "defaults");
+        m_Log->warn("Failed to open config file, generating one with "
+                    "defaults");
         // TODO: do it actually
     }
 
-    auto fromchars = [](const std::string_view src, auto& dst) {
+    auto fromchars = [](std::string_view src, auto& dst) {
         std::from_chars(&src.front(), &src.back(), dst);
     };
 
-    INFO("[Config] Reading config, {} keys", m_IniStruct.size());
+    m_Log->info("Configuration file found at {}", m_ConfigFilePath.size());
+    m_Log->info("Found {} keys, parsing...", m_IniStruct.size());
 
     { // BaseConfig
         BaseConfig config;
@@ -42,8 +45,8 @@ void Config::init(std::string_view optionalConfigPath)
             // use default values given in struct declarations
         }
 
-        INFO("[Config] base::width {}", config.width);
-        INFO("[Config] base::height {}", config.height);
+        m_Log->info("base::width {}", config.width);
+        m_Log->info("base::height {}", config.height);
 
         m_BaseConfig = config;
     }
@@ -63,10 +66,11 @@ void Config::init(std::string_view optionalConfigPath)
             // use default values
         }
 
-        INFO("[Config] vulkan::vsync {}", config.vsync);
-        INFO("[Config] vulkan::validationlayers {}",
-             config.enableValidationLayers);
-        INFO("[Config] vulkan::debugutils {}", config.enableDebugUtils);
+        m_Log->info("vulkan::vsync {}", config.vsync);
+        m_Log->info(
+                "vulkan::validationlayers {}",
+                config.enableValidationLayers);
+        m_Log->info("vulkan::debugutils {}", config.enableDebugUtils);
         m_VulkanConfig = config;
     }
 }

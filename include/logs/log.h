@@ -4,12 +4,17 @@
 
 #include <memory>
 #include <string>
+#include <mutex>
 
-#define TRACE(...) Log::getLogger()->trace(__VA_ARGS__);
-#define INFO(...) Log::getLogger()->info(__VA_ARGS__);
-#define WARNING(...) Log::getLogger()->warn(__VA_ARGS__);
-#define CRITICAL(...) Log::getLogger()->critical(__VA_ARGS__);
+// GL-prefix means global.. had to include that to prevent conflicts
 
+#define GLTRACE(...) logs::Log::getLogger()->trace(__VA_ARGS__);
+#define GLINFO(...) logs::Log::getLogger()->info(__VA_ARGS__);
+#define GLWARNING(...) logs::Log::getLogger()->warn(__VA_ARGS__);
+#define GLCRITICAL(...) logs::Log::getLogger()->critical(__VA_ARGS__);
+
+namespace logs
+{
 using Logger = std::shared_ptr<spdlog::logger>;
 
 class Log final
@@ -28,4 +33,7 @@ public:
 
 private:
     static inline std::shared_ptr<spdlog::logger> m_Console;
+    static inline std::mutex m_Mutex;
 };
+
+} // namespace logs

@@ -7,8 +7,8 @@
 
 int main(int argc, const char** argv)
 {
-    Log::init();
-    INFO("MySummerJob Game ({}.{}.{})", 0, 0, 1);
+    logs::Log::init();
+    GLINFO("MySummerJob Game ({}.{}.{})", 0, 0, 1);
 
     std::string_view optionalConfigPath;
     if(argc > 1)

@@ -3,6 +3,8 @@
 
 #include <mutex>
 
+namespace logs
+{
 void Log::init()
 {
     m_Console = spdlog::stdout_color_mt("global");
@@ -16,8 +18,10 @@ std::shared_ptr<spdlog::logger> Log::getLogger()
 
 std::shared_ptr<spdlog::logger> Log::create(const std::string& name)
 {
-    std::unique_lock<std::mutex> lock;
+    std::unique_lock<std::mutex> lock(m_Mutex);
     auto log = spdlog::stdout_color_mt(name);
     log->set_pattern("[%H:%M:%S] [%t] [%n] [%^%l%$] || %v");
     return log;
 }
+
+} // namespace logs

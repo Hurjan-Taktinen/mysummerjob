@@ -4,3 +4,5 @@ sources += files(
   'main.cpp')
 
 subdir('logs')
+subdir('event')
+subdir('core')
