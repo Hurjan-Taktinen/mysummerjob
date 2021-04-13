@@ -121,12 +121,12 @@ void Application::mainloop()
 
 void Application::onErrorCallback(int error, const char* description)
 {
-    WARNING("GLFW Error ({}): {}", error, description);
+    GLWARNING("GLFW Error ({}): {}", error, description);
 }
 
 void Application::handleKeyboardInput(int key, int action, int mods)
 {
-    INFO("key({}) isPressed({})", key, action == GLFW_PRESS);
+    GLINFO("key({}) isPressed({})", key, action == GLFW_PRESS);
     using namespace event;
 
     // This is a special case
@@ -166,7 +166,7 @@ void Application::onKeyCallback(
 
 void Application::handleMouseButtonInput(int button, bool isPressed)
 {
-    INFO("Button({}) isPressed({})", button, isPressed);
+    GLINFO("Button({}) isPressed({})", button, isPressed);
 }
 
 void Application::handleMouseScrollInput(double yoffset)
@@ -191,7 +191,7 @@ void Application::onFrameBufferResized(
         GLFWwindow* window, int width, int height)
 {
     (void)window;
-    INFO("New framebuffer size ({}, {})", width, height);
+    GLINFO("New framebuffer size ({}, {})", width, height);
 }
 
 void Application::onCursorPositionCallback(

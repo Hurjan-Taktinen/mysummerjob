@@ -5,3 +5,4 @@ sources += files(
 
 subdir('logs')
 subdir('event')
+subdir('core')

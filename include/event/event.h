@@ -2,10 +2,17 @@
 
 namespace event
 {
-class Event
+class EventBase
 {
 public:
-    virtual ~Event() = default;
+    virtual ~EventBase() = default;
+private:
+};
+
+class EventService
+{
+public:
+    virtual ~EventService() = default;
 private:
 };
 

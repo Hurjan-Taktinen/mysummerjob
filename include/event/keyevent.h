@@ -10,7 +10,7 @@ using KeyCode = utils::NamedType<int, struct KeyCodeTag>;
 using KeyMods = utils::NamedType<int, struct KeyModsTag>;
 using KeyAction = utils::NamedType<int, struct KeyActionTag>;
 
-struct KeyEvent : public Event
+struct KeyEvent : public EventBase
 {
     explicit constexpr KeyEvent(KeyCode code, KeyAction action, KeyMods mods) :
         keyCode(code), action(action), mods(mods)
