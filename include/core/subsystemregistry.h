@@ -76,8 +76,5 @@ private:
     mutable logs::Logger m_Log;
 };
 
-[[nodiscard]] auto& getSystemRegistry()
-{
-    return SystemRegistry::getInstance();
-}
+[[nodiscard]] SystemRegistry& getSystemRegistry();
 } // namespace core

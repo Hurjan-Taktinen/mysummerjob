@@ -2,4 +2,8 @@
 
 namespace core
 {
+SystemRegistry& getSystemRegistry()
+{
+    return SystemRegistry::getInstance();
+}
 } // namespace core

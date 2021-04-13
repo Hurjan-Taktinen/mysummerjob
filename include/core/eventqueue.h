@@ -13,7 +13,7 @@ template<class Event>
 struct Sub
 {
     virtual ~Sub() = default;
-    virtual void handleEvent(const Event&) = 0;
+    virtual void handleEvent(Event&&) = 0;
 };
 
 class EventQueue final : public utils::Singleton<EventQueue>
@@ -22,25 +22,47 @@ class EventQueue final : public utils::Singleton<EventQueue>
 
 public:
     template<class Sub, class Event>
-    void unicast(const std::shared_ptr<Sub>& target, const Event& event)
+    void unicast(const std::shared_ptr<Sub>& target, Event&& event)
     {
-        auto ret = m_Pool.enqueue(
-                [event = event,
-                 target = std::dynamic_pointer_cast<Sub>(target)] {
-                    target->handleEvent(event);
-                });
+        auto f = [event = std::move(event),
+                  target = target]() mutable {
+            std::unique_lock<std::mutex> lock(target->mutex);
+            target->handleEvent(std::move(event));
+        };
 
-        (void)ret;
+        [[maybe_unused]] auto ret = m_Pool.enqueue(std::move(f));
     }
 
 private:
+    EventQueue() = default;
+
     riften::Thiefpool m_Pool;
 };
 
-[[nodiscard]] auto& getEventQueue()
-{
-    return EventQueue::getInstance();
-}
+[[nodiscard]] EventQueue& getEventQueue();
 
 } // namespace core
+
+namespace event
+{
+template<class Receiver, class Event>
+void sendUnicast(const std::shared_ptr<Receiver>& receiver, Event&& event)
+{
+    core::getEventQueue().unicast(receiver, std::move(event));
+}
+
+// enum struct EventType
+// {
+// Key,
+// Tick
+// };
+
+// template<class Event>
+// void sendMulticast(EventType type, const Event& event)
+// {
+// core::getEventQueue().multicast(
+// type, std::move(event));
+// }
+
+} // namespace event
 

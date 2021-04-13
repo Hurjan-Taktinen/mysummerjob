@@ -12,8 +12,10 @@ external/
 -I
 external/gli/
 -I
-/usr/include/spdlog/include/
--I
 subprojects/threadpool/include/
 -I
 subprojects/entt/single_include/
+-I
+subprojects/spdlog-1.8.5/include/
+-I
+/usr/include/spdlog/include/

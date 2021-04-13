@@ -2,6 +2,7 @@
 
 #include "event.h"
 #include "utils/namedtype.h"
+#include "core/eventqueue.h"
 
 namespace event
 {
@@ -38,6 +39,19 @@ struct KeyReleasedEvent : KeyEvent
         KeyEvent(code, action, mods)
     {
     }
+};
+
+// struct KeyEventSenderIf : EventService, core::Sub<KeyPressedEvent>
+// {
+// virtual ~KeyEventSenderIf() = default;
+// };
+
+struct KeyEventReceiverIf :
+    EventService,
+    core::Sub<KeyPressedEvent>,
+    core::Sub<KeyReleasedEvent>
+{
+    virtual ~KeyEventReceiverIf() = default;
 };
 
 } // namespace event

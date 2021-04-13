@@ -1,19 +1,28 @@
 #pragma once
 
+#include <mutex>
+
 namespace event
 {
-class EventBase
+
+enum struct Eventtypes
 {
-public:
-    virtual ~EventBase() = default;
-private:
+    StopApplication,
+    WindowResize, WindowFocus, WindowLostFocus,
+    AppTick, AppUpdate, AppRendered,
+    KeyPressed, KeyReleased,
+    MouseMoved, MouseButtonPressed, MouseButtonReleased
 };
 
-class EventService
+struct EventBase
 {
-public:
+    virtual ~EventBase() = default;
+};
+
+struct EventService
+{
     virtual ~EventService() = default;
-private:
+    std::mutex mutex;
 };
 
 } // namespace event

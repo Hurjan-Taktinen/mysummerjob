@@ -9,6 +9,8 @@ project('mysummerjob',
   version : '0.0.1',
   license: 'MIT')
 
+compiler = meson.get_compiler('cpp')
+
 cmake = import('cmake')
 cmake_opt_glfw = cmake.subproject_options()
 
@@ -17,7 +19,7 @@ cmake_opt_glfw.add_cmake_defines({'GLFW_BUILD_DOCS': false})
 cmake_opt_glfw.add_cmake_defines({'GLFW_BUILD_TESTS': false})
 cmake_opt_glfw.add_cmake_defines({'GLFW_BUILD_EXAMPLES': false})
 cmake_opt_glfw.add_cmake_defines({'GLFW_USE_WAYLAND': false})
-cmake_opt_glfw.add_cmake_defines({'GLFW_VULKAN_STATIC': false})
+cmake_opt_glfw.add_cmake_defines({'GLFW_VULKAN_STATIC': true})
 cmake_opt_glfw.add_cmake_defines({'CMAKE_BUILD_TYPE': 'Release'})
 cmake_opt_glfw.set_override_option('warning_level', '0')
 cmake_opt_glfw.set_override_option('werror', 'false')
@@ -25,7 +27,9 @@ cmake_opt_glfw.set_override_option('werror', 'false')
 ## Subprojects ##
 catch2 = subproject('catch2')
 glfw_subpro = cmake.subproject('glfw', options : cmake_opt_glfw)
+entt_subpro = cmake.subproject('entt')
 glm = subproject('glm')
+imgui = subproject('imgui')
 riftenpool_subpro = cmake.subproject('threadpool')
 spdlog = subproject('spdlog')
 vulkan_headers = subproject('vulkan-headers')
@@ -35,6 +39,8 @@ vulkan_validationlayers = subproject('vulkan-validationlayers')
 build_deps = []
 build_deps += glfw_subpro.dependency('glfw')
 build_deps += glm.get_variable('glm_dep')
+build_deps += entt_subpro.dependency('EnTT')
+build_deps += imgui.get_variable('imgui_dep')
 build_deps += riftenpool_subpro.dependency('RiftenThiefpool')
 build_deps += spdlog.get_variable('spdlog_dep')
 build_deps += vulkan_headers.get_variable('vulkan_headers_dep')
@@ -50,14 +56,21 @@ unittest_deps += spdlog.get_variable('spdlog_dep')
 inc = []
 inc += include_directories('include')
 inc += include_directories('external')
+inc += include_directories('external/gli')
+inc += include_directories('subprojects/entt/single_include')
 
 # for GLM, TODO make this per-project compile argument
 cpp_compile_args = [
   '-DGLM_FORCE_RADIANS',
   '-DGLM_FORCE_DEPTH_ZERO_TO_ONE']
 
+if compiler.get_id() == 'clang'
+  cpp_compile_args += '-Wno-deprecated-volatile'
+endif
+
 cpp_link_args = [
-  '-ldl']
+  '-ldl',
+  '-lvulkan']
 
 sources = []
 unittest_sources = []
@@ -69,6 +82,7 @@ subdir('unittests')
 executable('mysummerjob', sources,
   include_directories : inc,
   dependencies : build_deps,
+  link_depends : shaders,
   cpp_args : cpp_compile_args,
   link_args : cpp_link_args)
 

@@ -8,7 +8,7 @@ public:
     int value = 0;
 
 private:
-    // SingleFoo() = default;
+    SingleFoo() = default;
     // SingleFoo(const SingleFoo&) = delete;
     // SingleFoo(SingleFoo&&) = delete;
 

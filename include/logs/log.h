@@ -6,12 +6,10 @@
 #include <string>
 #include <mutex>
 
-// GL-prefix means global.. had to include that to prevent conflicts
-
-#define GLTRACE(...) logs::Log::getLogger()->trace(__VA_ARGS__);
-#define GLINFO(...) logs::Log::getLogger()->info(__VA_ARGS__);
-#define GLWARNING(...) logs::Log::getLogger()->warn(__VA_ARGS__);
-#define GLCRITICAL(...) logs::Log::getLogger()->critical(__VA_ARGS__);
+#define LGTRACE(...) logs::Log::getLogger()->trace(__VA_ARGS__);
+#define LGINFO(...) logs::Log::getLogger()->info(__VA_ARGS__);
+#define LGWARNING(...) logs::Log::getLogger()->warn(__VA_ARGS__);
+#define LGCRITICAL(...) logs::Log::getLogger()->critical(__VA_ARGS__);
 
 namespace logs
 {
