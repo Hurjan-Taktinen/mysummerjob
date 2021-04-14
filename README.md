@@ -1,9 +1,13 @@
 ## Table of Contents
 + [Description](#Description)
++ [Dependencies](#Dependencies)
 + [Building](#Building)
 
 ## <a name="Description"></a> Description
 MySummerJob game
+
+## <a name="Dependencies"></a> Dependencies
+- cmake 3.19
 
 ## <a name="Building"></a> Building
 ```
