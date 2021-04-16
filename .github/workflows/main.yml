@@ -4,49 +4,59 @@ name: CI
 
 # Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    # Triggers the workflow on push or pull request events but only for the main branch
+    push:
+        branches: [ main ]
+    pull_request:
+        branches: [ main ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+    # Build job
+    build:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v2
 
-      - name: Install Deps
-        run: |
-            sudo apt-get update
-            sudo apt-get install -y wget python3 python3-pip xorg-dev libglu1-mesa-dev gcc-10 g++-10 libvulkan-dev glslang-tools libglfw3-dev
-            python3 -m pip install --upgrade pip
-            python3 -m pip install meson ninja
-            wget -q -O miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-            bash miniconda.sh -b -p $HOME/miniconda
-            export PATH="$HOME/miniconda/bin:${PATH}"
-            conda update -n base -c defaults conda
-            conda install cmake -c conda-forge
+        # Install dependencies for building
+        - name: Install Deps
+          run: |
+              sudo apt-get update
+              sudo apt-get install -y wget python3 python3-pip xorg-dev libglu1-mesa-dev gcc-10 g++-10 libvulkan-dev glslang-tools libglfw3-dev
+              python3 -m pip install --upgrade pip
+              python3 -m pip install meson ninja
+              wget -q -O miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+              bash miniconda.sh -b -p $HOME/miniconda
+              export PATH="$HOME/miniconda/bin:${PATH}"
+              conda update -n base -c defaults conda
+              conda install cmake -c conda-forge
 
-      # Build step
-      - name: Build
-        run: |
-          CC=gcc-10 CXX=g++-10 meson build
-          cd build
-          ninja tests
+        # Build step
+        - name: Build
+          run: |
+              CC=gcc-10 CXX=g++-10 meson build
+              cd build
+              ninja tests
 
-      - name: Test
-        run: ./build/tests
+        # Test step
+        - name: Test
+          run: ./build/tests
 
-      - name: Dockerizer
-        run: ./tools/dockerizer.sh
+
+    # Dockerizer job
+    docker:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v2
+        - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+        - run: docker pull docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit || true
+        - run: docker build . -t mysummerjob --cache-from=docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit
+        - run: |
+            docker tag mysummerjob docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit
+            docker push docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit || true
+        - run: docker run -v $PWD:/app mysummerjob
 
