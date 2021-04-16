@@ -152,9 +152,9 @@ void Model::load(const std::string& path)
 
             if(!attrib.colors.empty())
             {
-                vertex.c.x = attrib.colors[3 * index.texcoord_index + 0];
-                vertex.c.y = attrib.colors[3 * index.texcoord_index + 1];
-                vertex.c.z = attrib.colors[3 * index.texcoord_index + 2];
+                vertex.c.x = attrib.colors[3 * index.vertex_index + 0];
+                vertex.c.y = attrib.colors[3 * index.vertex_index + 1];
+                vertex.c.z = attrib.colors[3 * index.vertex_index + 2];
             }
 
             vertex.materialId = shape.mesh.material_ids[faceId];

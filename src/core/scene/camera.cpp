@@ -41,17 +41,17 @@ void TrackBall::updateRotation(float dtheta, float dphi)
     m_Phi += dphi;
 
     // Clamp phi between -2PI and 2PI
-    if(m_Phi > 2.0f * M_PI)
+    if(m_Phi > 2.0f * glm::pi<float>())
     {
-        m_Phi -= 2.0f * M_PI;
+        m_Phi -= 2.0f * glm::pi<float>();
     }
-    else if(m_Phi < -2.0f * M_PI)
+    else if(m_Phi < -2.0f * glm::pi<float>())
     {
-        m_Phi += 2.0f * M_PI;
+        m_Phi += 2.0f * glm::pi<float>();
     }
 
-    if((0.0f < m_Phi && m_Phi < M_PI)
-       || (-M_PI > m_Phi && m_Phi > -2.0f * M_PI))
+    if((0.0f < m_Phi && m_Phi < glm::pi<float>())
+       || (-glm::pi<float>() > m_Phi && m_Phi > -2.0f * glm::pi<float>()))
     {
         m_Up = 1.0f;
     }

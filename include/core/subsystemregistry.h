@@ -30,13 +30,13 @@ class SystemRegistry final : public utils::Singleton<SystemRegistry>
     friend class utils::Singleton<SystemRegistry>;
 
 public:
-    SystemRegistry() { m_Log = logs::Log::create("System registry"); }
+    SystemRegistry() : m_Log(logs::Log::create("System registry")) {}
     ~SystemRegistry() { m_Subsystems.clear(); }
 
     template<class T>
     auto registerSubsystem(const std::weak_ptr<T>& ptr)
     {
-        std::unique_lock {m_Mutex};
+        std::unique_lock lock{m_Mutex};
 
         std::type_index info = typeid(T);
         auto [it, inserted] = m_Subsystems.emplace(info, ptr);
@@ -54,7 +54,7 @@ public:
     template<class T>
     auto getSubsystem() const -> std::shared_ptr<T>
     {
-        std::unique_lock {m_Mutex};
+        std::unique_lock lock{m_Mutex};
 
         std::type_index info = typeid(T);
         auto res = m_Subsystems.find(info);

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glm/mat4x4.hpp>
-#include <glm/vec3.hpp>
+#include "glm/mat4x4.hpp"
+#include "glm/vec3.hpp"
+#include "glm/gtc/constants.hpp"
 
 namespace core::scene
 {
@@ -31,8 +32,8 @@ private:
     glm::vec3 m_Target;
     glm::vec3 m_Position;
 
-    float m_Theta = M_PI;
-    float m_Phi = M_PI * 0.5f;
+    float m_Theta = glm::pi<float>();
+    float m_Phi = glm::pi<float>() * 0.5f;
     float m_Radius = 5.0f;
     float m_Up = 1.0f;
 
