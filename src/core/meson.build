@@ -1,11 +1,11 @@
 sources += files(
   'userinputhandler.cpp',
-  'eventqueue.cpp',
+  'workqueue.cpp',
   'subsystemregistry.cpp')
 
 unittest_sources += files(
   'subsystemregistry.cpp',
-  'eventqueue.cpp')
+  'workqueue.cpp')
 
 subdir('model')
 subdir('scene')

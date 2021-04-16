@@ -27,7 +27,7 @@ cmake_opt_glfw.set_override_option('werror', 'false')
 ## Subprojects ##
 catch2 = subproject('catch2')
 glfw_subpro = cmake.subproject('glfw', options : cmake_opt_glfw)
-entt_subpro = cmake.subproject('entt')
+entt_subpro = cmake.subproject('entt', default_options : 'warning_level=0')
 glm = subproject('glm', default_options: 'warning_level=0')
 imgui = subproject('imgui')
 spdlog = subproject('spdlog')
@@ -66,8 +66,11 @@ if compiler.get_id() == 'clang'
 endif
 
 cpp_link_args = [
-  '-ldl',
-  '-lvulkan']
+  '-ldl']
+
+if host_machine.system() == 'linux'
+  cpp_link_args += '-lvulkan'
+endif
 
 sources = []
 unittest_sources = []

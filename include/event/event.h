@@ -5,7 +5,7 @@
 namespace event
 {
 
-enum struct Eventtypes
+enum struct EventType
 {
     StopApplication,
     WindowResize, WindowFocus, WindowLostFocus,

@@ -3,7 +3,7 @@
 #include "event/event.h"
 #include "utils/singleton.h"
 #include "logs/log.h"
-#include "eventqueue.h"
+#include "workqueue.h"
 
 #include <memory>
 #include <map>

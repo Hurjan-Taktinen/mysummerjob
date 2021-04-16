@@ -1,7 +1,7 @@
 #include "catch2/catch.hpp"
 
 #include "core/subsystemregistry.h"
-#include "core/eventqueue.h"
+#include "core/workqueue.h"
 #include "event/event.h"
 
 #include <chrono>

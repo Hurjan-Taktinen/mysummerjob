@@ -2,7 +2,7 @@
 
 #include "event.h"
 #include "utils/namedtype.h"
-#include "core/eventqueue.h"
+#include "core/workqueue.h"
 
 namespace event
 {
