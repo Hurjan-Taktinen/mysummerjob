@@ -28,9 +28,8 @@ cmake_opt_glfw.set_override_option('werror', 'false')
 catch2 = subproject('catch2')
 glfw_subpro = cmake.subproject('glfw', options : cmake_opt_glfw)
 entt_subpro = cmake.subproject('entt')
-glm = subproject('glm')
+glm = subproject('glm', default_options: 'warning_level=0')
 imgui = subproject('imgui')
-riftenpool_subpro = cmake.subproject('threadpool')
 spdlog = subproject('spdlog')
 vulkan_headers = subproject('vulkan-headers')
 vulkan_validationlayers = subproject('vulkan-validationlayers')
@@ -41,7 +40,6 @@ build_deps += glfw_subpro.dependency('glfw')
 build_deps += glm.get_variable('glm_dep')
 build_deps += entt_subpro.dependency('EnTT')
 build_deps += imgui.get_variable('imgui_dep')
-build_deps += riftenpool_subpro.dependency('RiftenThiefpool')
 build_deps += spdlog.get_variable('spdlog_dep')
 build_deps += vulkan_headers.get_variable('vulkan_headers_dep')
 build_deps += vulkan_validationlayers.get_variable('vulkan_validationlayers_dep')
@@ -49,7 +47,6 @@ build_deps += vulkan_validationlayers.get_variable('vulkan_validationlayers_dep'
 unittest_deps = []
 unittest_deps += catch2.get_variable('catch2_dep')
 unittest_deps += glm.get_variable('glm_dep')
-unittest_deps += riftenpool_subpro.dependency('RiftenThiefpool')
 unittest_deps += spdlog.get_variable('spdlog_dep')
 
 ## Include directories ##
@@ -82,7 +79,7 @@ subdir('unittests')
 executable('mysummerjob', sources,
   include_directories : inc,
   dependencies : build_deps,
-  link_depends : shaders,
+  link_depends : [shaders],
   cpp_args : cpp_compile_args,
   link_args : cpp_link_args)
 

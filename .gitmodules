@@ -1,9 +1,6 @@
 [submodule "subprojects/glfw"]
 	path = subprojects/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "subprojects/threadpool"]
-	path = subprojects/threadpool
-	url = https://github.com/ConorWilliams/Threadpool.git
 [submodule "subprojects/entt"]
 	path = subprojects/entt
 	url = https://github.com/skypjack/entt.git
