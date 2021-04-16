@@ -42,5 +42,8 @@ OLDPATH=$PWD
 cd $(git rev-parse --show-toplevel)
 
 docker run -v $PWD:/app $NAME
+EXIT_CODE=$?
 
 cd $OLDPATH
+
+exit $EXIT_CODE

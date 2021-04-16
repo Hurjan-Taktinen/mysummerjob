@@ -13,14 +13,14 @@ namespace core::model
 {
 struct VertexPC final
 {
-    constexpr VertexPC(const glm::vec3& pp, const glm::vec3& cc) : p(pp), c(cc)
+    VertexPC(const glm::vec3& pp, const glm::vec3& cc) : p(pp), c(cc)
     {
     }
 
     glm::vec3 p;
     glm::vec3 c;
 
-    static constexpr auto getBindingDescription()
+    static auto getBindingDescription()
     {
         VkVertexInputBindingDescription desc;
         desc.binding = 0;
@@ -29,7 +29,7 @@ struct VertexPC final
         return desc;
     }
 
-    static constexpr auto getAttributeDescription()
+    static auto getAttributeDescription()
     {
         std::array<VkVertexInputAttributeDescription, 2> desc = {};
         desc[0].location = 0;
@@ -48,14 +48,14 @@ struct VertexPC final
 
 struct VertexPT final
 {
-    constexpr VertexPT(const glm::vec3& pp, const glm::vec2& tt) : p(pp), t(tt)
+    VertexPT(const glm::vec3& pp, const glm::vec2& tt) : p(pp), t(tt)
     {
     }
 
     glm::vec3 p;
     glm::vec2 t;
 
-    static constexpr auto getBindingDescription()
+    static auto getBindingDescription()
     {
         VkVertexInputBindingDescription desc;
         desc.binding = 0;
@@ -64,7 +64,7 @@ struct VertexPT final
         return desc;
     }
 
-    static constexpr auto getAttributeDescription()
+    static auto getAttributeDescription()
     {
         std::array<VkVertexInputAttributeDescription, 2> desc = {};
         desc[0].location = 0;
@@ -83,8 +83,8 @@ struct VertexPT final
 
 struct VertexPNTC final
 {
-    constexpr VertexPNTC() = default;
-    constexpr VertexPNTC(
+    VertexPNTC() = default;
+    VertexPNTC(
             const glm::vec3& pp,
             const glm::vec3& nn,
             const glm::vec2& tt,
@@ -99,7 +99,7 @@ struct VertexPNTC final
     glm::vec3 c;
     int materialId = 0;
 
-    static constexpr auto getBindingDescription()
+    static auto getBindingDescription()
     {
         VkVertexInputBindingDescription desc;
         desc.binding = 0;
@@ -107,7 +107,7 @@ struct VertexPNTC final
         desc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         return desc;
     }
-    static constexpr auto getAttributeDescription()
+    static auto getAttributeDescription()
     {
         std::array<VkVertexInputAttributeDescription, 5> desc = {};
         desc[0].location = 0;
@@ -143,7 +143,7 @@ struct VertexImGui final
 {
     // Interface only for binding/attribute descriptions
     //
-    static constexpr auto getBindingDescription()
+    static auto getBindingDescription()
     {
         VkVertexInputBindingDescription desc;
         desc.binding = 0;
@@ -152,7 +152,7 @@ struct VertexImGui final
         return desc;
     }
 
-    static constexpr auto getAttributeDescription()
+    static auto getAttributeDescription()
     {
         std::array<VkVertexInputAttributeDescription, 3> desc = {};
         desc[0].location = 0;

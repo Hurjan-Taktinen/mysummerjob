@@ -2,7 +2,7 @@
 rsync -aq /app/ /copy --exclude=build
 
 cd /copy
-meson build
+CC=gcc-10 CXX=g++-10 meson build
 cd build
 ninja
 ./tests
