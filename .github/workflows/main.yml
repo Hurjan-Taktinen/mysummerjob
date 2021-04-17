@@ -19,21 +19,26 @@ jobs:
     # Build job
     build:
         runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                language: [ 'cpp' ]
+                # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
+                # Learn more:
+                # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
+
         steps:
         - uses: actions/checkout@v2
 
         # Install dependencies for building
         - name: Install Deps
-          run: |
-              sudo apt-get update
-              sudo apt-get install -y wget python3 python3-pip xorg-dev libglu1-mesa-dev gcc-10 g++-10 libvulkan-dev glslang-tools libglfw3-dev
-              python3 -m pip install --upgrade pip
-              python3 -m pip install meson ninja
-              wget -q -O miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-              bash miniconda.sh -b -p $HOME/miniconda
-              export PATH="$HOME/miniconda/bin:${PATH}"
-              conda update -n base -c defaults conda
-              conda install cmake -c conda-forge
+          run: .github/install_dependencies.sh
+
+        # Initialize code analyzer
+        - name: Initialize CodeQL
+          uses: github/codeql-action/init@v1
+          with:
+            languages: ${{ matrix.language }}
 
         # Build step
         - name: Build
@@ -46,6 +51,9 @@ jobs:
         - name: Test
           run: ./build/tests
 
+        # Run analyser
+        - name: Perform CodeQL Analysis
+          uses: github/codeql-action/analyze@v1
 
     # Dockerizer job
     docker:
@@ -59,4 +67,3 @@ jobs:
             docker tag mysummerjob docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit
             docker push docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit || true
         - run: docker run -v $PWD:/app mysummerjob
-
