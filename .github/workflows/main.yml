@@ -61,9 +61,9 @@ jobs:
         steps:
         - uses: actions/checkout@v2
         - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
-        - run: docker pull docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit || true
-        - run: docker build . -t mysummerjob --cache-from=docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit
+        - run: docker pull docker.pkg.github.com/hurjan-taktinen/mysummerjob/mysummerjob-docker || true
+        - run: docker build . -t mysummerjob --cache-from=docker.pkg.github.com/hurjan-taktinen/mysummerjob/mysummerjob-docker
         - run: |
-            docker tag mysummerjob docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit
-            docker push docker.pkg.github.com/$GITHUB_REPOSITORY/build-cache-no-buildkit || true
+            docker tag mysummerjob docker.pkg.github.com/hurjan-taktinen/mysummerjob/mysummerjob-docker
+            docker push docker.pkg.github.com/hurjan-taktinen/mysummerjob/mysummerjob-docker || true
         - run: docker run -v $PWD:/app mysummerjob
