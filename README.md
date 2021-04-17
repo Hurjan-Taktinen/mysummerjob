@@ -18,7 +18,7 @@ MySummerJob game
 
 ## <a name="Building"></a> Building
 ```
-git clone https://github.com/awalder/mysummerjob.git
+git clone https://github.com/hurjan-taktinen/mysummerjob.git
 meson build
 cd build
 ninja
