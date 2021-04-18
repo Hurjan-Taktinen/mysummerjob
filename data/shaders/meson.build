@@ -13,7 +13,7 @@ if glslang.found()
 
   foreach s : srcs
 
-    message(s)
+    message('Compiling ', s, ' to SPIRV')
 
     shaders += custom_target('shader_@0@'.format(s),
       input : s,
