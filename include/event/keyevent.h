@@ -41,17 +41,20 @@ struct KeyReleasedEvent : KeyEvent
     }
 };
 
-// struct KeyEventSenderIf : EventService, core::Sub<KeyPressedEvent>
-// {
-// virtual ~KeyEventSenderIf() = default;
-// };
+struct KeyPressedEventIf :
+    virtual public EventService,
+    core::Sub<KeyPressedEvent>
+{
+    virtual ~KeyPressedEventIf() = default;
+    using core::Sub<KeyPressedEvent>::handleEvent;
+};
 
-struct KeyEventReceiverIf :
-    EventService,
-    core::Sub<KeyPressedEvent>,
+struct KeyReleasedEventIf :
+    virtual public EventService,
     core::Sub<KeyReleasedEvent>
 {
-    virtual ~KeyEventReceiverIf() = default;
+    virtual ~KeyReleasedEventIf() = default;
+    using core::Sub<KeyReleasedEvent>::handleEvent;
 };
 
 } // namespace event

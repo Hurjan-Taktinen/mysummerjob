@@ -2,12 +2,17 @@
 #include "logs/log.h"
 #include "timer/timer.h"
 
-#include "event/keyevent.h"
-
 #include "imgui/imgui_impl_glfw.h"
+#include "event/keyevent.h"
 
 namespace app
 {
+
+Application::Application() :
+    m_Log(logs::Log::create("Application")),
+    m_BaseConfig(config::Config::getBaseConfig())
+{
+}
 
 Application::~Application()
 {
@@ -22,10 +27,12 @@ Application::~Application()
     glfwTerminate();
 }
 
-void Application::init()
+void Application::run()
 {
-    m_Log = logs::Log::create("Application");
-    m_BaseConfig = config::Config::getBaseConfig();
+    auto& reg = core::getSystemRegistry();
+
+    preinit(reg);
+    init(reg);
 
     try
     {
@@ -38,13 +45,12 @@ void Application::init()
     }
 
     m_Camera = std::make_shared<core::scene::TrackBall>();
-    m_Camera->init(m_FrameBufferSize.width, m_FrameBufferSize.height);
+    m_Camera->initCamera(m_FrameBufferSize.width, m_FrameBufferSize.height);
 
     m_Scene = std::make_unique<core::scene::Scene>(m_Camera.get());
 
     m_VulkanContext = std::make_shared<core::vk::Context>(
             m_Window, m_Scene.get());
-
 
     m_VulkanContext->init(m_FrameBufferSize);
 
@@ -60,9 +66,20 @@ void Application::init()
     mainloop();
 }
 
-// -----------------------------------------------------------------------------
-//
-//
+void Application::preinit(core::SystemRegistry&)
+{
+    m_Log->info("preinit");
+    auto& que = core::getWorkQueue();
+    que.subscribeToMulticast(
+            event::EventType::StopApplication, shared_from_this());
+    que.subscribeToMulticast(event::EventType::KeyPressed, shared_from_this());
+    que.subscribeToMulticast(event::EventType::KeyReleased, shared_from_this());
+}
+
+void Application::init(const core::SystemRegistry&)
+{
+    m_Log->info("init");
+}
 
 void Application::initilizeGLFW()
 {
@@ -146,6 +163,20 @@ void Application::mainloop()
     }
 }
 
+void Application::handleEvent(event::ApplicationStopEvent&& event)
+{
+    m_Log->info("HandleEvent ApplicationStopEvent {}", event.stop);
+    glfwSetWindowShouldClose(m_Window.get(), true);
+}
+
+void Application::handleEvent(event::KeyPressedEvent&&)
+{
+}
+
+void Application::handleEvent(event::KeyReleasedEvent&&)
+{
+}
+
 // -----------------------------------------------------------------------------
 // GLFW Error callback
 //
@@ -160,33 +191,28 @@ void Application::handleKeyboardInput(int key, int action, int mods)
     (void)mods;
     using namespace event;
 
-    bool isPressed = action == GLFW_PRESS;
-
-    // This is a special case
-    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(m_Window.get(), true);
-    }
-    else if(key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
-    {
-        m_Keyboard.lShift = isPressed;
-    }
-    else if(key == GLFW_KEY_SPACE && !isPressed)
-    {
-        m_VulkanContext->renderImGui = !m_VulkanContext->renderImGui;
-    }
-
     // TODO: this is how keys are handled in future
-    // if(action == GLFW_PRESS)
-    // {
-    // event::KeyPressedEvent event {
-    // KeyCode(key), KeyAction(action), KeyMods(mods)};
-    // }
-    // else if(action == GLFW_RELEASE)
-    // {
-    // event::KeyReleasedEvent event {
-    // KeyCode(key), KeyAction(action), KeyMods(mods)};
-    // }
+    if(action == GLFW_PRESS)
+    {
+        if(key == GLFW_KEY_ESCAPE)
+        {
+            event::sendMulticast(
+                    event::EventType::StopApplication,
+                    event::ApplicationStopEvent {true});
+            return;
+        }
+
+        event::KeyPressedEvent pressed {
+                KeyCode(key), KeyAction(action), KeyMods(mods)};
+
+        event::sendMulticast(event::EventType::KeyPressed, pressed);
+    }
+    else if(action == GLFW_RELEASE)
+    {
+        event::KeyReleasedEvent released {
+                KeyCode(key), KeyAction(action), KeyMods(mods)};
+        event::sendMulticast(event::EventType::KeyReleased, released);
+    }
 }
 
 void Application::onKeyCallback(

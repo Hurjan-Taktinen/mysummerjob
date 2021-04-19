@@ -39,6 +39,9 @@ public:
     {
         auto [f, l] = m_Subs.equal_range(type);
 
+        if(std::distance(f, l) == 0)
+            return;
+
         for(auto i = f; i != l; ++i)
         {
             if(auto ptr = i->second.lock(); ptr)
@@ -61,7 +64,8 @@ public:
             event::EventType type, const std::shared_ptr<Sub>& sub)
     {
         std::unique_lock lock {m_Mutex};
-        m_Subs.emplace(type, sub);
+        m_Subs.emplace(
+                type, std::dynamic_pointer_cast<event::EventService>(sub));
     }
 
 private:

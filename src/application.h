@@ -3,8 +3,12 @@
 #include "config/config.h"
 #include "core/scene/camera.h"
 #include "core/scene/scene.h"
+#include "core/subsystemregistry.h"
 #include "core/vulkan/context.h"
+#include "event/keyevent.h"
 #include "logs/log.h"
+
+#include "event/applicationevents.h"
 
 #include "vulkan/vulkan.h"
 #include "GLFW/glfw3.h"
@@ -13,21 +17,35 @@
 
 namespace app
 {
-class Application final
+class Application final :
+    public core::SystemBase,
+    public event::ApplicationEventIf,
+    public event::KeyPressedEventIf,
+    public event::KeyReleasedEventIf,
+    public std::enable_shared_from_this<Application>
 {
 public:
+    Application();
     ~Application();
-    void init();
+    void run();
 
 private:
+    void preinit(core::SystemRegistry&) override;
+    void init(const core::SystemRegistry&) override;
+
     void initilizeGLFW();
     void mainloop();
+
+    void handleEvent(event::ApplicationStopEvent&& event) override;
+    void handleEvent(event::KeyPressedEvent&& event) override;
+    void handleEvent(event::KeyReleasedEvent&& event) override;
+
 
     void handleKeyboardInput(int key, int action, int mods);
     void handleMouseButtonInput(int button, bool isPressed);
     void handleMouseScrollInput(double yoffset);
     void handleMousePositionInput(double xpos, double ypos);
-    void handleFramebufferResize(int  width, int height);
+    void handleFramebufferResize(int width, int height);
 
     // GLFW callback handlers
     static void onErrorCallback(int error, const char* description);

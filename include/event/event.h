@@ -24,5 +24,4 @@ struct EventService
     virtual ~EventService() = default;
     std::mutex mutex;
 };
-
 } // namespace event
