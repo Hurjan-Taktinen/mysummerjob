@@ -29,7 +29,6 @@ catch2 = subproject('catch2')
 glfw_subpro = cmake.subproject('glfw', options : cmake_opt_glfw)
 entt_subpro = cmake.subproject('entt', default_options : 'warning_level=0')
 glm = subproject('glm', default_options: 'warning_level=0')
-imgui = subproject('imgui')
 spdlog = subproject('spdlog')
 vulkan_headers = subproject('vulkan-headers')
 vulkan_validationlayers = subproject('vulkan-validationlayers')
@@ -39,7 +38,6 @@ build_deps = []
 build_deps += glfw_subpro.dependency('glfw')
 build_deps += glm.get_variable('glm_dep')
 build_deps += entt_subpro.dependency('EnTT')
-build_deps += imgui.get_variable('imgui_dep')
 build_deps += spdlog.get_variable('spdlog_dep')
 build_deps += vulkan_headers.get_variable('vulkan_headers_dep')
 build_deps += vulkan_validationlayers.get_variable('vulkan_validationlayers_dep')
@@ -78,6 +76,7 @@ unittest_sources = []
 subdir('data')
 subdir('src')
 subdir('unittests')
+subdir('external/imgui')
 
 executable('mysummerjob', sources,
   include_directories : inc,
