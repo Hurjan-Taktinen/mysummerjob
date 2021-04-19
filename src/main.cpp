@@ -18,6 +18,6 @@ int main(int argc, const char** argv)
 
     config::Config::init(optionalConfigPath);
 
-    app::Application app;
-    app.init();
+    auto app = std::make_shared<app::Application>();
+    app->run();
 }

@@ -1,7 +1,5 @@
 #include "core/scene/camera.h"
 
-#include "logs/log.h"
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -12,7 +10,7 @@ namespace core::scene
 //
 //
 
-void TrackBall::init(uint32_t width, uint32_t height)
+void TrackBall::initCamera(uint32_t width, uint32_t height)
 {
     float aspect = static_cast<float>(width) / static_cast<float>(height);
     matrices.proj = glm::perspective(
@@ -135,4 +133,4 @@ glm::vec3 TrackBall::toCartesian() const
     return ret;
 }
 
-} // namespace scene::camera
+} // namespace core::scene
