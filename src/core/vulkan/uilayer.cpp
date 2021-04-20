@@ -12,7 +12,8 @@ ImGuiOverlay::ImGuiOverlay(Device* device, VkRenderPass renderpass) :
 
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    // io.BackendFlags = ;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     unsigned char* fontData;
     int texWidth = 0, texHeight = 0;
     // ImFont* font;
