@@ -1,5 +1,5 @@
 sources += files(
-  'userinputhandler.cpp',
+  # 'userinputhandler.cpp',
   'workqueue.cpp',
   'subsystemregistry.cpp')
 

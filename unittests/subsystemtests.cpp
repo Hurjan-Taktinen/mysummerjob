@@ -9,6 +9,7 @@
 #include <string>
 #include <thread>
 
+#include <windows.h>
 struct RequesterEvent final : public event::EventBase
 {
     std::string name;
@@ -151,4 +152,7 @@ TEST_CASE("subsys")
 
     foo->init(reg);
     bar->init(reg);
+
+    LGINFO("TID({})", GetCurrentProcessId());
+    Sleep(10000);
 }

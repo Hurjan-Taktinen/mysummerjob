@@ -1,7 +1,7 @@
 project('mysummerjob',
   'cpp',
   default_options : [
-    'cpp_std=c++20',
+    'cpp_std=c++latest',
     'buildtype=debug',
     'warning_level=3',
     'werror=false',
@@ -41,6 +41,7 @@ build_deps += entt_subpro.dependency('EnTT')
 build_deps += spdlog.get_variable('spdlog_dep')
 build_deps += vulkan_headers.get_variable('vulkan_headers_dep')
 build_deps += vulkan_validationlayers.get_variable('vulkan_validationlayers_dep')
+build_deps += dependency('Vulkan')
 
 unittest_deps = []
 unittest_deps += catch2.get_variable('catch2_dep')

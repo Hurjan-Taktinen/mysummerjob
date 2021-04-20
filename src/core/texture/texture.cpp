@@ -19,7 +19,8 @@ void Texture2d::loadFromFile(
         VkImageLayout imageLayout)
 {
     m_Log = logs::Log::create("Texture2d");
-    std::string extension = std::filesystem::path(file).extension().c_str();
+//     std::string extension = std::filesystem::path(file).extension().c_str();
+    std::string extension = ".png";
     std::transform(
             extension.begin(), extension.end(), extension.begin(), tolower);
 
