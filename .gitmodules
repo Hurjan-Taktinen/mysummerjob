@@ -2,5 +2,4 @@
 	path = subprojects/glfw
 	url = https://github.com/glfw/glfw.git
 [submodule "subprojects/entt"]
-	path = subprojects/entt
 	url = https://github.com/skypjack/entt.git
