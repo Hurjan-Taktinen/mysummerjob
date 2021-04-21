@@ -66,7 +66,7 @@ private:
     std::shared_ptr<GLFWwindow> m_Window;
     std::shared_ptr<core::vk::Context> m_VulkanContext;
     std::shared_ptr<core::scene::TrackBall> m_Camera;
-    std::unique_ptr<core::scene::Scene> m_Scene;
+    std::shared_ptr<core::scene::Scene> m_Scene;
 
     VkExtent2D m_FrameBufferSize = {0, 0};
     VkExtent2D m_MonitorResolution = {0, 0};

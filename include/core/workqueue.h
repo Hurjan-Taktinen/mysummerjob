@@ -11,13 +11,6 @@
 namespace core
 {
 
-template<class Event>
-struct Sub
-{
-    virtual ~Sub() = default;
-    virtual void handleEvent(Event&&) = 0;
-};
-
 class WorkQueue final : public utils::Singleton<WorkQueue>
 {
     friend class utils::Singleton<WorkQueue>;
@@ -48,7 +41,7 @@ public:
             {
                 auto f = [event = std::move(event),
                           mptr = ptr,
-                          tptr = std::dynamic_pointer_cast<Sub<Event>>(
+                          tptr = std::dynamic_pointer_cast<event::Sub<Event>>(
                                   ptr)]() mutable {
                     std::unique_lock<std::mutex> lock(mptr->mutex);
                     tptr->handleEvent(std::move(event));
@@ -66,6 +59,13 @@ public:
         std::unique_lock lock {m_Mutex};
         m_Subs.emplace(
                 type, std::dynamic_pointer_cast<event::EventService>(sub));
+    }
+
+    template<class F, class... Args>
+    decltype(auto) submitWork(F&& f, Args&&... args)
+    {
+        std::unique_lock lock {m_Mutex};
+        return m_Pool.enqueue(std::forward<F>(f), std::forward<Args>(args)...);
     }
 
 private:

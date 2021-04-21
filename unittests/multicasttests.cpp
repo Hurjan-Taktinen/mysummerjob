@@ -18,12 +18,12 @@ struct keyreleased final : public event::EventBase
 
 struct keylistener :
     public event::EventService,
-    public core::Sub<keypressed>,
-    public core::Sub<keyreleased>
+    public event::Sub<keypressed>,
+    public event::Sub<keyreleased>
 
 {
     virtual ~keylistener() = default;
-    using core::Sub<keypressed>::handleEvent;
+    using Sub<keypressed>::handleEvent;
 };
 
 struct Booman final :

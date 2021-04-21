@@ -47,7 +47,7 @@ void Application::run()
     m_Camera = std::make_shared<core::scene::TrackBall>();
     m_Camera->initCamera(m_FrameBufferSize.width, m_FrameBufferSize.height);
 
-    m_Scene = std::make_unique<core::scene::Scene>(m_Camera.get());
+    m_Scene = std::make_shared<core::scene::Scene>(m_Camera.get());
 
     m_VulkanContext = std::make_shared<core::vk::Context>(
             m_Window, m_Scene.get());

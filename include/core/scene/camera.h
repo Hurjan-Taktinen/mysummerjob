@@ -6,6 +6,8 @@
 #include "glm/vec3.hpp"
 #include "glm/gtc/constants.hpp"
 
+#include <numbers>
+
 
 namespace core::scene
 {
@@ -40,8 +42,8 @@ private:
     glm::vec3 m_Target;
     glm::vec3 m_Position;
 
-    float m_Theta = glm::pi<float>();
-    float m_Phi = glm::pi<float>() * 0.5f;
+    float m_Theta = std::numbers::pi;
+    float m_Phi = std::numbers::pi * 0.5f;
     float m_Radius = 5.0f;
     float m_Up = 1.0f;
 

@@ -476,7 +476,7 @@ void Context::createInstance()
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pNext = nullptr;
-    appInfo.pApplicationName = "KorpiSimu";
+    appInfo.pApplicationName = "MySummerJob";
     appInfo.applicationVersion = VK_MAKE_VERSION(0, 1, 0);
     appInfo.pEngineName = "Light Wood Laminate";
     appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 0);
@@ -602,7 +602,6 @@ VkPhysicalDevice Context::selectPhysicalDevice()
 
 void Context::createSynchronizationPrimitives()
 {
-    m_Log->info("createSynchronizationPrimitives");
     const uint32_t imageCount = m_Swapchain->getImageCount();
     m_PresentCompleteSemaphores.resize(imageCount);
     m_RenderingCompleteSemaphores.resize(imageCount);
@@ -645,7 +644,6 @@ void Context::createSynchronizationPrimitives()
 
 void Context::createRenderPass()
 {
-    m_Log->info("createRenderPass");
     std::array<VkAttachmentDescription, 2> attachments = {};
     attachments[0].flags = 0;
     attachments[0].format = m_Swapchain->getImageFormat();
@@ -729,8 +727,6 @@ void Context::createRenderPass()
 
 void Context::createGraphicsPipeline()
 {
-    m_Log->info("createGraphicsPipeline");
-
     const auto bindingDescription = model::VertexPNTC::getBindingDescription();
     const auto
             attributeDescription = model::VertexPNTC::getAttributeDescription();
@@ -941,7 +937,6 @@ void Context::createGraphicsPipeline()
 
 void Context::allocateCommandBuffers()
 {
-    m_Log->info("allocateCommandBuffers");
     m_RenderingCommandBuffers.resize(m_Swapchain->getImageCount());
 
     VkCommandBufferAllocateInfo allocateInfo = {};
@@ -1069,7 +1064,6 @@ void Context::renderSceneItems(VkCommandBuffer cmdBuf)
 
 void Context::createUniformBuffers()
 {
-    m_Log->info("createUniformBuffers");
     m_UniformBuffer.resize(m_Swapchain->getImageCount());
     m_UniformMemory.resize(m_Swapchain->getImageCount());
 
@@ -1120,8 +1114,6 @@ void Context::updateUniformBuffers(float dt)
 
 void Context::setupDescriptors()
 {
-    m_Log->info("setupDescriptors");
-
     { // Descriptor pool
         std::array<VkDescriptorPoolSize, 3> poolSizes = {};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1335,7 +1327,6 @@ void Context::setupDescriptors2()
 
 void Context::recreateSwapchain()
 {
-    m_Log->info("RecreateSwapchain");
     vkDeviceWaitIdle(m_Device->getLogicalDevice());
     cleanupSwapchain();
 
@@ -1362,7 +1353,6 @@ void Context::recreateSwapchain()
 
 void Context::cleanupSwapchain()
 {
-    m_Log->info("cleanupSwapchain");
     m_Swapchain->destroyFrameBuffers();
     vkFreeCommandBuffers(
             m_Device->getLogicalDevice(),

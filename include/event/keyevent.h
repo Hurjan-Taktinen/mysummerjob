@@ -1,8 +1,8 @@
 #pragma once
 
+#include "core/workqueue.h"
 #include "event.h"
 #include "utils/namedtype.h"
-#include "core/workqueue.h"
 
 namespace event
 {
@@ -43,18 +43,18 @@ struct KeyReleasedEvent : KeyEvent
 
 struct KeyPressedEventIf :
     virtual public EventService,
-    core::Sub<KeyPressedEvent>
+    Sub<KeyPressedEvent>
 {
     virtual ~KeyPressedEventIf() = default;
-    using core::Sub<KeyPressedEvent>::handleEvent;
+    using Sub<KeyPressedEvent>::handleEvent;
 };
 
 struct KeyReleasedEventIf :
     virtual public EventService,
-    core::Sub<KeyReleasedEvent>
+    Sub<KeyReleasedEvent>
 {
     virtual ~KeyReleasedEventIf() = default;
-    using core::Sub<KeyReleasedEvent>::handleEvent;
+    using Sub<KeyReleasedEvent>::handleEvent;
 };
 
 } // namespace event

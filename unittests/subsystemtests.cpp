@@ -28,21 +28,21 @@ struct ProviderEvent2 final : public event::EventBase
 };
 
 struct ProviderIf :
-    public event::EventService,
-    public core::Sub<ProviderEvent>,
-    public core::Sub<ProviderEvent2>
+    virtual public event::EventService,
+    public event::Sub<ProviderEvent>,
+    public event::Sub<ProviderEvent2>
 
 {
     virtual ~ProviderIf() = default;
-    using core::Sub<ProviderEvent>::handleEvent;
-    using core::Sub<ProviderEvent2>::handleEvent;
+    using event::Sub<ProviderEvent>::handleEvent;
+    using event::Sub<ProviderEvent2>::handleEvent;
 };
 struct RequesterIf :
-    public event::EventService,
-    public core::Sub<RequesterEvent>
+    virtual public event::EventService,
+    public event::Sub<RequesterEvent>
 {
     virtual ~RequesterIf() = default;
-    using core::Sub<RequesterEvent>::handleEvent;
+    using event::Sub<RequesterEvent>::handleEvent;
 };
 
 struct Fooman final :

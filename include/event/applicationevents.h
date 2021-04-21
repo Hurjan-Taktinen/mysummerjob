@@ -14,10 +14,10 @@ struct ApplicationStopEvent final : event::EventBase
 
 struct ApplicationEventIf :
     virtual public event::EventService,
-    public core::Sub<ApplicationStopEvent>
+    public Sub<ApplicationStopEvent>
 {
     virtual ~ApplicationEventIf() = default;
-    using core::Sub<ApplicationStopEvent>::handleEvent;
+    using Sub<ApplicationStopEvent>::handleEvent;
 };
 
 }

@@ -24,6 +24,8 @@ void TrackBall::initCamera(uint32_t width, uint32_t height)
 
 void TrackBall::updateRotation(float dtheta, float dphi)
 {
+    using namespace std::numbers;
+
     dtheta *= m_MouseSensitivity;
     dphi *= m_MouseSensitivity;
 
@@ -39,17 +41,16 @@ void TrackBall::updateRotation(float dtheta, float dphi)
     m_Phi += dphi;
 
     // Clamp phi between -2PI and 2PI
-    if(m_Phi > 2.0f * glm::pi<float>())
+    if(m_Phi > 2.0f * pi)
     {
-        m_Phi -= 2.0f * glm::pi<float>();
+        m_Phi -= 2.0f * pi;
     }
-    else if(m_Phi < -2.0f * glm::pi<float>())
+    else if(m_Phi < -2.0f * pi)
     {
-        m_Phi += 2.0f * glm::pi<float>();
+        m_Phi += 2.0f * pi;
     }
 
-    if((0.0f < m_Phi && m_Phi < glm::pi<float>())
-       || (-glm::pi<float>() > m_Phi && m_Phi > -2.0f * glm::pi<float>()))
+    if((0.0f < m_Phi && m_Phi < pi) || (-pi > m_Phi && m_Phi > -2.0f * pi))
     {
         m_Up = 1.0f;
     }

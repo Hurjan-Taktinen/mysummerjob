@@ -132,7 +132,6 @@ void Swapchain::create(bool vsync)
             m_Device->getPhysicalDevice(), m_Surface, &m_SurfaceCapabilities);
 
     uint32_t minImageCount = m_SurfaceCapabilities.minImageCount;
-    m_Log->info("Swapchain minImageCount({})", minImageCount);
 
     // Search for preferred format, if not found, pick first one in the list.
     assert(m_SurfaceFormatList.size() > 0);
@@ -204,11 +203,6 @@ void Swapchain::create(bool vsync)
                     std::min(
                             capabilities.maxImageExtent.height,
                             actualExtent.height));
-
-            log->info(
-                    "ActualExtent({}, {})",
-                    actualExtent.width,
-                    actualExtent.height);
 
             return actualExtent;
         }
