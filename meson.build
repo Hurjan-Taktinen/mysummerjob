@@ -18,7 +18,7 @@ cmake_opt_glfw = cmake.subproject_options()
 cmake_opt_glfw.add_cmake_defines({'GLFW_BUILD_DOCS': false})
 cmake_opt_glfw.add_cmake_defines({'GLFW_BUILD_TESTS': false})
 cmake_opt_glfw.add_cmake_defines({'GLFW_BUILD_EXAMPLES': false})
-cmake_opt_glfw.add_cmake_defines({'GLFW_USE_WAYLAND': false})
+cmake_opt_glfw.add_cmake_defines({'GLFW_USE_WAYLAND': true})
 cmake_opt_glfw.add_cmake_defines({'GLFW_VULKAN_STATIC': true})
 cmake_opt_glfw.add_cmake_defines({'CMAKE_BUILD_TYPE': 'Release'})
 cmake_opt_glfw.set_override_option('warning_level', '0')
@@ -27,7 +27,6 @@ cmake_opt_glfw.set_override_option('werror', 'false')
 ## Subprojects ##
 catch2 = subproject('catch2')
 glfw_subpro = cmake.subproject('glfw', options : cmake_opt_glfw)
-entt_subpro = cmake.subproject('entt', default_options : 'warning_level=0')
 glm = subproject('glm', default_options: 'warning_level=0')
 spdlog = subproject('spdlog')
 vulkan_headers = subproject('vulkan-headers')
@@ -37,7 +36,6 @@ vulkan_validationlayers = subproject('vulkan-validationlayers')
 build_deps = []
 build_deps += glfw_subpro.dependency('glfw')
 build_deps += glm.get_variable('glm_dep')
-build_deps += entt_subpro.dependency('EnTT')
 build_deps += spdlog.get_variable('spdlog_dep')
 build_deps += vulkan_headers.get_variable('vulkan_headers_dep')
 build_deps += vulkan_validationlayers.get_variable('vulkan_validationlayers_dep')
@@ -52,7 +50,6 @@ inc = []
 inc += include_directories('include')
 inc += include_directories('external')
 inc += include_directories('external/gli')
-inc += include_directories('subprojects/entt/single_include')
 
 # for GLM, TODO make this per-project compile argument
 cpp_compile_args = [
