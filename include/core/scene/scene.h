@@ -4,7 +4,8 @@
 #include "core/model/model.h"
 #include "core/vulkan/device.h"
 
-#include "entt/entt.hpp"
+#include "entt/entity/entity.hpp"
+#include "entt/entity/registry.hpp"
 
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -14,12 +15,10 @@ namespace core::scene
 class Scene
 {
 public:
-    Scene(TrackBall* camera);
+    Scene(entt::registry& registry, TrackBall* cam);
     void loadModels(vk::Device* device);
-    // void draw(VkCommandBuffer cmdBuf) const;
     const auto& getDrawList() const { return m_Models; }
     auto getDescriptorWrites() const { return true; }
-    const auto* getCamera() const { return m_Camera; }
 
     void clear()
     {
@@ -48,8 +47,10 @@ public:
         return imageInfos;
     }
 
+    const auto* getCamera() const { return m_Camera;}
+
 private:
-    entt::registry m_Registry;
+    entt::registry& m_Registry;
     TrackBall* m_Camera = nullptr;
     std::vector<model::Model> m_Models;
 };

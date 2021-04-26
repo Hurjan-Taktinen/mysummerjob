@@ -111,4 +111,4 @@ private:
             m_Images;
 };
 
-}; // namespace core::vk
+} // namespace core::vk

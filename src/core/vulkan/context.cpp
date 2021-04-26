@@ -2,6 +2,7 @@
 
 #include "logs/log.h"
 #include "core/vulkan/utils.h"
+#include "core/scene/components.h"
 
 #include "imgui/imgui_impl_glfw.h"
 
@@ -17,11 +18,14 @@ namespace core::vk
 //
 
 Context::Context(
-        const std::shared_ptr<GLFWwindow> window, scene::Scene* scene) :
+        const std::shared_ptr<GLFWwindow> window,
+        scene::Scene* scene,
+        entt::registry& registry) :
     m_Log(logs::Log::create("Vulkan Context")),
     m_Config(config::Config::getVulkanConfig()),
     m_Window(window),
-    m_Scene(scene)
+    m_Scene(scene),
+    m_Registry(registry)
 {
     m_Log->info("Vulkan context created");
 }
@@ -164,13 +168,11 @@ void Context::init(VkExtent2D swapchainExtent)
         assert(false);
     }
 
-    m_Scene->loadModels(m_Device.get());
     m_Swapchain->create(m_Config.vsync);
 
     createUniformBuffers();
     createSynchronizationPrimitives();
     createRenderPass();
-    setupDescriptors2();
 }
 
 // -----------------------------------------------------------------------------
@@ -180,6 +182,7 @@ void Context::init(VkExtent2D swapchainExtent)
 
 void Context::generatePipelines()
 {
+    setupDescriptors2();
     createGraphicsPipeline();
     m_Swapchain->createFrameBuffers(m_Renderpass);
     allocateCommandBuffers();
@@ -298,7 +301,6 @@ void Context::updateOverlay(float dt)
 
     // ImGui::ColorEdit3("Color", &color);
 
-
     ImGui::Render();
 
     m_ui->update();
@@ -320,8 +322,6 @@ void Context::renderFrame(float dt)
             &m_Fences[m_FrameIndex],
             VK_TRUE,
             UINT64_MAX);
-
-    // pollEvents();
 
     // /////////////////////////////////////////
 
@@ -983,10 +983,8 @@ void Context::recordCommandBuffers(uint32_t nextImageIndex)
     VkViewport viewport = {};
     viewport.x = 0;
     viewport.y = static_cast<float>(m_SwapchainExtent.height);
-    // viewport.y = 0;
     viewport.width = static_cast<float>(m_SwapchainExtent.width);
     viewport.height = -static_cast<float>(m_SwapchainExtent.height);
-    // viewport.height = static_cast<float>(m_SwapchainExtent.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
@@ -1041,20 +1039,17 @@ void Context::recordCommandBuffers(uint32_t nextImageIndex)
 void Context::renderSceneItems(VkCommandBuffer cmdBuf)
 {
     assert(m_Scene);
-    const auto& models = m_Scene->getDrawList();
     VkDeviceSize offsets[] = {0};
 
-    for(const auto& model : models)
+    auto view = m_Registry.view<scene::component::VertexInfo>();
+    for(auto entity : view)
     {
-        const auto& indices = model.getIndices();
-        const auto* vertexBuffer = model.VertexBuffer();
-        const auto indexBuffer = model.IndexBuffer();
-
-        vkCmdBindVertexBuffers(cmdBuf, 0, 1, vertexBuffer, offsets);
-        vkCmdBindIndexBuffer(cmdBuf, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-        vkCmdDrawIndexed(
-                cmdBuf, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        auto vertexInfo = view.get<scene::component::VertexInfo>(entity);
+        const auto* vb = &vertexInfo.vertexBuffer;
+        const auto ib = vertexInfo.indexBuffer;
+        vkCmdBindVertexBuffers(cmdBuf, 0, 1, vb, offsets);
+        vkCmdBindIndexBuffer(cmdBuf, ib, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdDrawIndexed(cmdBuf, vertexInfo.numIndices, 1, 0, 0, 0);
     }
 }
 
@@ -1302,9 +1297,19 @@ void Context::setupDescriptors2()
         set = gen.generateSet(m_DescriptorPool, m_DescSetLayout);
     }
 
-    // auto writes = m_Scene->getDescriptorWrites();
-    const auto imageInfos = m_Scene->getImageInfos();
-    const auto materialBufferInfos = m_Scene->getbufferinfos();
+    std::vector<VkDescriptorImageInfo> imageInfos = {};
+    std::vector<VkDescriptorBufferInfo> materialBufferInfos = {};
+
+    auto view = m_Registry.view<scene::component::RenderInfo>();
+    for(auto entity : view)
+    {
+        auto renderInfo = view.get<scene::component::RenderInfo>(entity);
+        imageInfos.insert(
+                imageInfos.end(),
+                renderInfo.imageInfos.begin(),
+                renderInfo.imageInfos.end());
+        materialBufferInfos.push_back(renderInfo.buffeInfo);
+    }
 
     for(std::size_t i = 0; i < m_DescriptorSet.size(); ++i)
     {
