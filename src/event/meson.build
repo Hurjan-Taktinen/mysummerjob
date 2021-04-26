@@ -1,2 +1,1 @@
-sources += files(
-  'event.cpp')
+sources += files()

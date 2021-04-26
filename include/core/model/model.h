@@ -4,8 +4,8 @@
 #include "core/texture/texture.h"
 #include "core/model/vertex.h"
 #include "logs/log.h"
-
 #include "glm/vec3.hpp"
+#include "entt/entity/registry.hpp"
 
 #include <memory>
 #include <vector>
@@ -45,15 +45,14 @@ enum struct TextureType
 class Model
 {
 public:
-    explicit Model(core::vk::Device* device) :
-        m_Log(logs::Log::create("Model")), m_Device(device)
+    explicit Model(core::vk::Device* device, entt::registry& reg) :
+        m_Log(logs::Log::create("Model")), m_Device(device), m_Registry(reg)
     {
     }
 
     ~Model();
 
     void load(const std::string& path);
-    void setupDescriptors();
 
     auto getMaterialBuffer() const { return m_MaterialBuffer; }
     const auto& getVertices() const { return m_Vertices; }
@@ -75,6 +74,7 @@ public:
 private:
     logs::Logger m_Log;
     vk::Device* m_Device;
+    entt::registry& m_Registry;
 
     std::vector<VertexPNTC> m_Vertices;
     std::vector<uint32_t> m_Indices;
@@ -82,9 +82,6 @@ private:
     std::vector<std::string> m_TexturePaths;
     std::vector<texture::Texture2d> m_Textures;
     std::vector<VkDescriptorImageInfo> m_Infos;
-
-    // size_t numVertices = 0;
-    // size_t numIndices = 0;
 
     VkBuffer m_VertexBuffer = VK_NULL_HANDLE;
     VmaAllocation m_VertexMemory = VK_NULL_HANDLE;

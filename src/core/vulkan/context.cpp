@@ -2,6 +2,7 @@
 
 #include "logs/log.h"
 #include "core/vulkan/utils.h"
+#include "core/scene/components.h"
 
 #include "imgui/imgui_impl_glfw.h"
 
@@ -17,11 +18,14 @@ namespace core::vk
 //
 
 Context::Context(
-        const std::shared_ptr<GLFWwindow> window, scene::Scene* scene) :
+        const std::shared_ptr<GLFWwindow> window,
+        scene::Scene* scene,
+        entt::registry& registry) :
     m_Log(logs::Log::create("Vulkan Context")),
     m_Config(config::Config::getVulkanConfig()),
     m_Window(window),
-    m_Scene(scene)
+    m_Scene(scene),
+    m_Registry(registry)
 {
     m_Log->info("Vulkan context created");
 }
@@ -164,13 +168,11 @@ void Context::init(VkExtent2D swapchainExtent)
         assert(false);
     }
 
-    m_Scene->loadModels(m_Device.get());
     m_Swapchain->create(m_Config.vsync);
 
     createUniformBuffers();
     createSynchronizationPrimitives();
     createRenderPass();
-    setupDescriptors2();
 }
 
 // -----------------------------------------------------------------------------
@@ -180,6 +182,7 @@ void Context::init(VkExtent2D swapchainExtent)
 
 void Context::generatePipelines()
 {
+    setupDescriptors2();
     createGraphicsPipeline();
     m_Swapchain->createFrameBuffers(m_Renderpass);
     allocateCommandBuffers();
@@ -218,67 +221,67 @@ void Context::updateOverlay(float dt)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    {
-        static bool opt_fullscreen_persistant = true;
-        bool opt_fullscreen = opt_fullscreen_persistant;
-        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-        dockspace_flags |= ImGuiDockNodeFlags_PassthruCentralNode;
+    // {
+    // static bool opt_fullscreen_persistant = true;
+    // bool opt_fullscreen = opt_fullscreen_persistant;
+    // static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+    // dockspace_flags |= ImGuiDockNodeFlags_PassthruCentralNode;
 
-        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent
-        // window not dockable into, because it would be confusing to have two
-        // docking targets within each others.
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar
-                                        | ImGuiWindowFlags_NoDocking;
-        if(opt_fullscreen)
-        {
-            ImGuiViewport* viewport = ImGui::GetMainViewport();
-            ImGui::SetNextWindowPos(viewport->Pos);
-            ImGui::SetNextWindowSize(viewport->Size);
-            ImGui::SetNextWindowViewport(viewport->ID);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-            window_flags |= ImGuiWindowFlags_NoTitleBar
-                            | ImGuiWindowFlags_NoResize
-                            | ImGuiWindowFlags_NoMove;
-            window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus
-                            | ImGuiWindowFlags_NoNavFocus;
-            // window_flags |= ImGuiWindowFlags
-        }
+    // // We are using the ImGuiWindowFlags_NoDocking flag to make the parent
+    // // window not dockable into, because it would be confusing to have two
+    // // docking targets within each others.
+    // ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar
+    // | ImGuiWindowFlags_NoDocking;
+    // if(opt_fullscreen)
+    // {
+    // ImGuiViewport* viewport = ImGui::GetMainViewport();
+    // ImGui::SetNextWindowPos(viewport->Pos);
+    // ImGui::SetNextWindowSize(viewport->Size);
+    // ImGui::SetNextWindowViewport(viewport->ID);
+    // ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    // ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    // window_flags |= ImGuiWindowFlags_NoTitleBar
+    // | ImGuiWindowFlags_NoResize
+    // | ImGuiWindowFlags_NoMove;
+    // window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus
+    // | ImGuiWindowFlags_NoNavFocus;
+    // // window_flags |= ImGuiWindowFlags
+    // }
 
-        // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will
-        // render our background and handle the pass-thru hole, so we ask
-        // Begin() to not render a background.
-        if(dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-            window_flags |= ImGuiWindowFlags_NoBackground;
+    // // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will
+    // // render our background and handle the pass-thru hole, so we ask
+    // // Begin() to not render a background.
+    // if(dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+    // window_flags |= ImGuiWindowFlags_NoBackground;
 
-        // Important: note that we proceed even if Begin() returns false (aka
-        // window is collapsed). This is because we want to keep our DockSpace()
-        // active. If a DockSpace() is inactive, all active windows docked into
-        // it will lose their parent and become undocked. We cannot preserve the
-        // docking relationship between an active window and an inactive
-        // docking, otherwise any change of dockspace/settings would lead to
-        // windows being stuck in limbo and never being visible.
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-        ImGui::Begin("###DockSpace", &p_open, window_flags);
-        ImGui::PopStyleVar();
+    // // Important: note that we proceed even if Begin() returns false (aka
+    // // window is collapsed). This is because we want to keep our DockSpace()
+    // // active. If a DockSpace() is inactive, all active windows docked into
+    // // it will lose their parent and become undocked. We cannot preserve the
+    // // docking relationship between an active window and an inactive
+    // // docking, otherwise any change of dockspace/settings would lead to
+    // // windows being stuck in limbo and never being visible.
+    // ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    // ImGui::Begin("###DockSpace", &p_open, window_flags);
+    // ImGui::PopStyleVar();
 
-        if(opt_fullscreen)
-            ImGui::PopStyleVar(2);
+    // if(opt_fullscreen)
+    // ImGui::PopStyleVar(2);
 
-        // DockSpace
-        ImGuiIO& io = ImGui::GetIO();
-        if(io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-        {
-            ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-        }
-        else
-        {
-            // ShowDockingDisabledMessage();
-        }
+    // // DockSpace
+    // ImGuiIO& io = ImGui::GetIO();
+    // if(io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+    // {
+    // ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    // ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+    // }
+    // else
+    // {
+    // // ShowDockingDisabledMessage();
+    // }
 
-        ImGui::End();
-    }
+    // ImGui::End();
+    // }
 
     // ImGui::ShowDemoWindow();
     // ImGui::SetWindowSize(windowSize);
@@ -297,7 +300,6 @@ void Context::updateOverlay(float dt)
     ImGui::End();
 
     // ImGui::ColorEdit3("Color", &color);
-
 
     ImGui::Render();
 
@@ -320,8 +322,6 @@ void Context::renderFrame(float dt)
             &m_Fences[m_FrameIndex],
             VK_TRUE,
             UINT64_MAX);
-
-    // pollEvents();
 
     // /////////////////////////////////////////
 
@@ -983,10 +983,8 @@ void Context::recordCommandBuffers(uint32_t nextImageIndex)
     VkViewport viewport = {};
     viewport.x = 0;
     viewport.y = static_cast<float>(m_SwapchainExtent.height);
-    // viewport.y = 0;
     viewport.width = static_cast<float>(m_SwapchainExtent.width);
     viewport.height = -static_cast<float>(m_SwapchainExtent.height);
-    // viewport.height = static_cast<float>(m_SwapchainExtent.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
@@ -1041,21 +1039,36 @@ void Context::recordCommandBuffers(uint32_t nextImageIndex)
 void Context::renderSceneItems(VkCommandBuffer cmdBuf)
 {
     assert(m_Scene);
-    const auto& models = m_Scene->getDrawList();
+    // const auto& models = m_Scene->getDrawList();
     VkDeviceSize offsets[] = {0};
 
-    for(const auto& model : models)
+    // using C = scene::component;
+
+    auto view = m_Registry.view<scene::component::RenderInfo>();
+    for(auto entity : view)
     {
-        const auto& indices = model.getIndices();
-        const auto* vertexBuffer = model.VertexBuffer();
-        const auto indexBuffer = model.IndexBuffer();
-
-        vkCmdBindVertexBuffers(cmdBuf, 0, 1, vertexBuffer, offsets);
-        vkCmdBindIndexBuffer(cmdBuf, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-        vkCmdDrawIndexed(
-                cmdBuf, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        auto renderInfo = view.get<scene::component::RenderInfo>(entity);
+        const auto* vb = &renderInfo.vertexBuffer;
+        const auto ib = renderInfo.indexBuffer;
+        vkCmdBindVertexBuffers(cmdBuf, 0, 1, vb, offsets);
+        vkCmdBindIndexBuffer(cmdBuf, ib, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdDrawIndexed(cmdBuf, renderInfo.numIndices, 1, 0, 0, 0);
     }
+
+    // for(const auto& model : models)
+    // {
+    // const auto& indices = model.getIndices();
+    // const auto* vertexBuffer = model.VertexBuffer();
+    // const auto indexBuffer = model.IndexBuffer();
+
+    // m_Log->info("DRAWING {} incides", indices.size());
+
+    // vkCmdBindVertexBuffers(cmdBuf, 0, 1, vertexBuffer, offsets);
+    // vkCmdBindIndexBuffer(cmdBuf, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+    // vkCmdDrawIndexed(
+    // cmdBuf, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+    // }
 }
 
 // ----------------------------------------------------------------------------
@@ -1302,9 +1315,19 @@ void Context::setupDescriptors2()
         set = gen.generateSet(m_DescriptorPool, m_DescSetLayout);
     }
 
-    // auto writes = m_Scene->getDescriptorWrites();
-    const auto imageInfos = m_Scene->getImageInfos();
-    const auto materialBufferInfos = m_Scene->getbufferinfos();
+    std::vector<VkDescriptorImageInfo> imageInfos = {};
+    std::vector<VkDescriptorBufferInfo> materialBufferInfos = {};
+
+    auto view = m_Registry.view<scene::component::RenderInfo>();
+    for(auto entity : view)
+    {
+        auto renderInfo = view.get<scene::component::RenderInfo>(entity);
+        imageInfos.insert(
+                imageInfos.end(),
+                renderInfo.imageInfos.begin(),
+                renderInfo.imageInfos.end());
+        materialBufferInfos.push_back(renderInfo.buffeInfo);
+    }
 
     for(std::size_t i = 0; i < m_DescriptorSet.size(); ++i)
     {

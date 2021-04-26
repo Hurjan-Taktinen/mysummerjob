@@ -26,7 +26,8 @@ void Config::init(std::string_view optionalConfigPath)
     }
 
     auto fromchars = [](const std::string& src, auto& dst) {
-        std::from_chars(src.data(), src.data() + src.size(), dst);
+        const auto last = src.data() + src.size();
+        std::from_chars(src.data(), last, dst);
     };
 
     m_Log->info("Configuration file found at {}", m_ConfigFilePath.size());

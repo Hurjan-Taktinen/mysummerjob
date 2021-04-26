@@ -3,6 +3,7 @@
 #include "core/vulkan/descriptorgen.h"
 #include "logs/log.h"
 #include "tinyobj/tiny_obj_loader.h"
+#include "core/scene/components.h"
 
 #include <glm/glm.hpp>
 
@@ -233,48 +234,33 @@ void Model::load(const std::string& path)
         texture.loadFromFile(m_Device, file, VK_FORMAT_R8G8B8A8_UNORM);
     }
 
+    std::vector<VkDescriptorImageInfo> infos;
     for(const auto& tex : m_Textures)
     {
         VkDescriptorImageInfo info = {};
         info.sampler = tex.sampler;
         info.imageView = tex.view;
         info.imageLayout = tex.layout;
-        m_Infos.push_back(info);
+        infos.push_back(info);
     }
 
-    // setupDescriptors();
-}
+    scene::component::RenderInfo renderInfo {
+            .vertexBuffer = m_VertexBuffer,
+            .indexBuffer = m_IndexBuffer,
+            .numIndices = m_Indices.size(),
+            .buffeInfo = {m_MaterialBuffer, 0, VK_WHOLE_SIZE},
+            .imageInfos = std::move(infos)};
 
-void Model::setupDescriptors()
-{
-    vk::DescriptorSetGenerator gen(m_Device->getLogicalDevice());
+    const auto ent = m_Registry.create();
+    auto transform = glm::mat4 {1.0f};
+    auto position = glm::vec3 {0.0f, 0.0f, 0.0f};
 
-    gen.addBinding(
-            1, // binding
-            1,
-            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            VK_SHADER_STAGE_FRAGMENT_BIT);
+    glm::translate(transform, position);
 
-    gen.addBinding(
-            2, // binding
-            1,
-            VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-            VK_SHADER_STAGE_FRAGMENT_BIT);
+    m_Registry.emplace<scene::component::Position>(ent, position);
+    m_Registry.emplace<scene::component::Transform>(ent, transform);
+    m_Registry.emplace<scene::component::RenderInfo>(ent, renderInfo);
 
-    m_Descriptors.pool = gen.generatePool(100);
-    m_Descriptors.layout = gen.generateLayout();
-
-    m_Descriptors.set = gen.generateSet(
-            m_Descriptors.pool, m_Descriptors.layout);
-
-    const auto imageInfos = getImageInfos();
-    const auto materialBufferInfo = getBufferInfo();
-
-    {
-        gen.bind(m_Descriptors.set, 1, imageInfos);
-        gen.bind(m_Descriptors.set, 2, {materialBufferInfo});
-    }
-    gen.updateSetContents();
 }
 
 } // namespace core::model

@@ -61,14 +61,12 @@ TEST_CASE("WorkQueue[queue]")
         auto result = que.submitWork(work, 10);
         result.wait();
         int value = result.get();
-        std::cout << "RESULT >> " << value << std::endl;
         REQUIRE(1000 == value);
     }
     {
         auto result = que.submitWork(work2);
         result.wait();
         int value = result.get();
-        std::cout << "RESULT >> " << value << std::endl;
         REQUIRE(1000000 == value);
     }
 }

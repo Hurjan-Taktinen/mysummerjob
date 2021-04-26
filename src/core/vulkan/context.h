@@ -13,6 +13,7 @@
 #include "uilayer.h"
 
 #include "logs/log.h"
+#include "entt/entity/registry.hpp"
 
 #include <GLFW/glfw3.h>
 #include <glm/mat4x4.hpp>
@@ -30,7 +31,9 @@ namespace core::vk
 class Context final
 {
 public:
-    Context(const std::shared_ptr<GLFWwindow> window, scene::Scene* scene);
+    Context(const std::shared_ptr<GLFWwindow> window,
+            scene::Scene* scene,
+            entt::registry& registry);
 
     ~Context();
 
@@ -91,6 +94,7 @@ private:
     std::unique_ptr<Device> m_Device;
 
     scene::Scene* m_Scene = nullptr;
+    entt::registry& m_Registry;
 
     VkInstance m_Instance = VK_NULL_HANDLE;
     VkRenderPass m_Renderpass = VK_NULL_HANDLE;
