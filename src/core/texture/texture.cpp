@@ -4,6 +4,7 @@
 #include "stb/stb_image.h"
 #include "core/vulkan/utils.h"
 #include "logs/log.h"
+#include "utils/stringutils.h"
 
 #include <filesystem>
 #include <algorithm>
@@ -18,10 +19,7 @@ void Texture2d::loadFromFile(
         VkImageUsageFlags imageUsage,
         VkImageLayout imageLayout)
 {
-    m_Log = logs::Log::create("Texture2d");
-    std::string extension = std::filesystem::path(file).extension().c_str();
-    std::transform(
-            extension.begin(), extension.end(), extension.begin(), tolower);
+    std::string extension = utils::getExtension(file);
 
     assert(!this->device);
     this->device = device;
@@ -297,7 +295,6 @@ void Texture2d::loadFromBuffer(
         VkImageUsageFlags imageUsage,
         VkImageLayout imageLayout)
 {
-    m_Log = logs::Log::create("Texture2d-2");
     assert(buffer);
     this->device = device;
     this->width = width;
@@ -460,4 +457,4 @@ void Texture2d::loadFromBuffer(
     descriptor = VkDescriptorImageInfo {sampler, view, layout};
 }
 
-} // namespace render::vk
+} // namespace core::texture

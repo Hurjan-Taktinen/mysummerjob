@@ -1,5 +1,7 @@
 .vscode/
 .vs/
+*.srctrl*
+
 build/
 
 compile_commands.json

@@ -52,14 +52,21 @@ protected:
             vkDestroySampler(device->getLogicalDevice(), sampler, nullptr);
     }
 
-
-    logs::Logger m_Log;
+    inline static logs::Logger m_Log;
     vk::Device* device;
 };
 
 class Texture2d final : public Texture
 {
 public:
+    Texture2d()
+    {
+        if(!m_Log)
+        {
+            m_Log = logs::Log::create("Texture2d");
+        }
+    }
+
     ~Texture2d() { clean(); }
 
     void loadFromFile(
@@ -82,4 +89,4 @@ public:
             VkImageLayout imageLayout =
                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 };
-} // namespace render::vk
+} // namespace core::texture

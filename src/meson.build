@@ -7,3 +7,5 @@ sources += files(
 subdir('logs')
 subdir('event')
 subdir('core')
+subdir('ui')
+subdir('utils')

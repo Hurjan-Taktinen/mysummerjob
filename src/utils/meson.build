@@ -1,0 +1,2 @@
+sources += files(
+  'stringutils.cpp')

@@ -4,6 +4,7 @@
 #include "logs/log.h"
 #include "tinyobj/tiny_obj_loader.h"
 #include "core/scene/components.h"
+#include "utils/stringutils.h"
 
 #include <glm/glm.hpp>
 
@@ -52,6 +53,8 @@ void Model::load(const std::string& path)
         m_Log->warn("TinyObjReader: {}", reader.Warning());
     }
 
+    const auto directory = utils::getDirectory(path);
+
     auto& attrib = reader.GetAttrib();
     auto& shapes = reader.GetShapes();
     auto& materials = reader.GetMaterials();
@@ -90,7 +93,7 @@ void Model::load(const std::string& path)
         { // Diffuse
             if(!mat.diffuse_texname.empty())
             {
-                auto ret = "data/models/" + mat.diffuse_texname;
+                auto ret = directory + "/" + mat.diffuse_texname;
                 m_Log->info("DIFFUSE TEXTURE NAME {}", ret);
                 m_TexturePaths.push_back(ret);
                 m.diffuseTextureID = static_cast<uint32_t>(
@@ -100,7 +103,7 @@ void Model::load(const std::string& path)
         { // Specular
             if(!mat.specular_texname.empty())
             {
-                auto ret = "data/models/" + mat.specular_texname;
+                auto ret = directory + "/" + mat.specular_texname;
                 m_Log->info("SPECULAR TEXTURE NAME {}", ret);
                 m_TexturePaths.push_back(ret);
                 m.specularTextureID = static_cast<uint32_t>(
@@ -110,7 +113,7 @@ void Model::load(const std::string& path)
         { // Normal
             if(!mat.normal_texname.empty())
             {
-                auto ret = "data/models/" + mat.normal_texname;
+                auto ret = directory + "/" + mat.normal_texname;
                 m_Log->info("NORMAL TEXTURE NAME {}", ret);
                 m_TexturePaths.push_back(ret);
                 m.normalTextureID = static_cast<uint32_t>(

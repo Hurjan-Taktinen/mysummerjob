@@ -16,11 +16,11 @@
 namespace core::vk
 {
 
-class ImGuiOverlay
+class ImGuiSetup
 {
 public:
-    ImGuiOverlay(Device* device, VkRenderPass renderpass);
-    ~ImGuiOverlay();
+    ImGuiSetup(Device* device, VkRenderPass renderpass);
+    ~ImGuiSetup();
 
     void update();
     void draw(VkCommandBuffer cmdBuf);
@@ -33,6 +33,8 @@ public:
 
 
 private:
+    void setDarkTheme();
+
     logs::Logger m_Log;
     Device* m_Device;
 

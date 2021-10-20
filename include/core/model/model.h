@@ -45,9 +45,16 @@ enum struct TextureType
 class Model
 {
 public:
-    explicit Model(core::vk::Device* device, entt::registry& reg) :
-        m_Log(logs::Log::create("Model")), m_Device(device), m_Registry(reg)
+    explicit Model(
+            core::vk::Device* device,
+            entt::registry& reg) :
+        m_Device(device), m_Registry(reg)
     {
+        if(!m_Log)
+        {
+            m_Log = logs::Log::create("Model");
+        }
+
     }
 
     ~Model();
@@ -72,7 +79,7 @@ public:
     }
 
 private:
-    logs::Logger m_Log;
+    inline static logs::Logger m_Log;
     vk::Device* m_Device;
     entt::registry& m_Registry;
 

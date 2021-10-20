@@ -5,9 +5,9 @@
 #include "core/scene/scene.h"
 #include "core/vulkan/context.h"
 #include "logs/log.h"
+#include "ui/imguilayer.h"
+
 #include "entt/entt.hpp"
-
-
 #include "vulkan/vulkan.h"
 #include "GLFW/glfw3.h"
 
@@ -53,6 +53,7 @@ private:
     std::shared_ptr<core::vk::Context> m_VulkanContext;
     std::shared_ptr<core::scene::TrackBall> m_Camera;
     std::shared_ptr<core::scene::Scene> m_Scene;
+    std::unique_ptr<ui::UiLayer> m_UiLayer;
 
     entt::registry m_Registry;
 
@@ -64,6 +65,8 @@ private:
 
     // Total time taken by one cycle of mainloop
     float m_FrameTime = 0.0f;
+
+    uint64_t m_FrameCounter = 0;
 
     // TODO move these away
     struct

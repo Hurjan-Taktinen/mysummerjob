@@ -47,10 +47,10 @@ void Application::run()
 
     m_VulkanContext = std::make_shared<core::vk::Context>(
             m_Window, m_Scene.get(), m_Registry);
-
     m_VulkanContext->init(m_FrameBufferSize);
+    m_UiLayer = std::make_unique<ui::UiLayer>();
 
-    m_Scene->loadModels(m_VulkanContext->getDevice());
+    // m_Scene->loadModels(m_VulkanContext->getDevice());
 
     {
         // append descriptor resources to context
@@ -136,13 +136,35 @@ void Application::mainloop()
     {
         Timer timer;
         glfwPollEvents();
-
         m_Camera->update(m_FrameTime);
+
+        m_UiLayer->begin();
+        { // UI related updates
+            auto& io = ImGui::GetIO();
+
+            ImGui::Begin("Performance metrics");
+            ImGui::Text(
+                    "%.3f ms / %.0f fps", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::Text("framecounter: %lu frame", m_FrameCounter);
+            ImGui::End();
+
+            ImGui::Begin("Settings");
+            if(auto filename = m_UiLayer->openFileButton("Load Model");
+               !filename.empty())
+            {
+                m_Log->info("Loadfile {}", filename);
+                m_Scene->addModel(m_VulkanContext->getDevice(), filename);
+                m_VulkanContext->recreateSwapchain();
+            }
+            ImGui::End();
+        }
+        m_UiLayer->end();
 
         m_VulkanContext->renderFrame(m_FrameTime);
 
         m_FrameTime = timer.elapsed();
         m_ApprunTime += m_FrameTime;
+        m_FrameCounter += 1;
     }
 }
 

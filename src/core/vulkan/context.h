@@ -10,7 +10,7 @@
 #include "core/scene/camera.h"
 #include "core/scene/scene.h"
 #include "swapchain.h"
-#include "uilayer.h"
+#include "imguisetup.h"
 
 #include "logs/log.h"
 #include "entt/entity/registry.hpp"
@@ -41,6 +41,7 @@ public:
     void renderFrame(float dt);
     void deviceWaitIdle() { vkDeviceWaitIdle(m_Device->getLogicalDevice()); }
     void generatePipelines();
+    void recreateSwapchain();
 
     [[nodiscard]] auto* getDevice() { return m_Device.get(); }
     [[nodiscard]] const auto* getDevice() const { return m_Device.get(); }
@@ -49,7 +50,6 @@ public:
     bool renderImGui = true;
 
 private:
-    void initImGui();
     void updateOverlay(float deltaTime);
     void createInstance();
     [[nodiscard]] VkPhysicalDevice selectPhysicalDevice();
@@ -64,8 +64,8 @@ private:
     void updateUniformBuffers(float dt);
     void setupDescriptors();
     void setupDescriptors2();
+    void updateDescriptorSets();
 
-    void recreateSwapchain();
     void cleanupSwapchain();
 
 private:
@@ -109,11 +109,12 @@ private:
     std::vector<VkFence> m_ImagesInFlight;
     std::vector<VkCommandBuffer> m_RenderingCommandBuffers;
 
+    std::unique_ptr<DescriptorSetGenerator> m_DescriptorSetGenerator;
     VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_DescSetLayout = VK_NULL_HANDLE;
     std::vector<VkDescriptorSet> m_DescriptorSet;
 
-    std::unique_ptr<ImGuiOverlay> m_ui;
+    std::unique_ptr<ImGuiSetup> m_ui;
 
     std::vector<VkBuffer> m_UniformBuffer;
     std::vector<VmaAllocation> m_UniformMemory;

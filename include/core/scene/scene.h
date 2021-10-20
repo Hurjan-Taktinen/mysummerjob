@@ -7,6 +7,7 @@
 #include "entt/entity/entity.hpp"
 #include "entt/entity/registry.hpp"
 
+#include <string>
 #include <vector>
 #include <vulkan/vulkan.h>
 
@@ -17,6 +18,7 @@ class Scene
 public:
     Scene(entt::registry& registry, TrackBall* cam);
     void loadModels(vk::Device* device);
+    void addModel(vk::Device* device, const std::string& file);
     const auto& getDrawList() const { return m_Models; }
     auto getDescriptorWrites() const { return true; }
 
