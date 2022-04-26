@@ -82,6 +82,7 @@ private:
     {
         VkPipeline skybox = VK_NULL_HANDLE;
         VkPipeline obj = VK_NULL_HANDLE;
+        VkPipeline simple = VK_NULL_HANDLE;
     } m_Pipelines;
 
     logs::Logger m_Log;

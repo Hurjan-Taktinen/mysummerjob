@@ -131,9 +131,10 @@ void Context::init(VkExtent2D swapchainExtent)
                 VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
                 | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
-        if(m_Config.enableValidationLayers != 0) {
+        if(m_Config.enableValidationLayers != 0)
+        {
             messageType |= VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
-}
+        }
 
         m_DebugUtils = std::make_unique<DebugUtils>(
                 m_Instance, messageSeverity, messageType);
@@ -241,6 +242,11 @@ void Context::renderFrame(float dt)
     if(result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         recreateSwapchain();
+
+        // imageIndex received previously is stale, reacquire (or could just
+        // bail out)
+        result = m_Swapchain->acquireNextImage(
+                m_PresentCompleteSemaphores[m_FrameIndex], &imageIndex);
     }
     else if(result != VK_SUCCESS)
     {
@@ -995,10 +1001,14 @@ void Context::updateUniformBuffers(float dt)
 {
     UniformBufferObject ubo;
 
+    static float timepass = 0.0f;
+    timepass += dt;
+
     const auto* camera = m_Scene->getCamera();
 
     ubo.model = glm::mat4(1.0f);
-    ubo.model = glm::translate(ubo.model, glm::vec3(std::sin(dt), 0.0f, 0.0f));
+    ubo.model = glm::translate(
+            ubo.model, glm::vec3(std::sin(timepass), 0.0f, 0.0f));
     ubo.view = camera->matrices.view;
     ubo.proj = camera->matrices.proj;
     ubo.proj[0][0] *= -1.0f;

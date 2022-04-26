@@ -50,7 +50,7 @@ void Application::run()
     m_VulkanContext->init(m_FrameBufferSize);
     m_UiLayer = std::make_unique<ui::UiLayer>();
 
-    // m_Scene->loadModels(m_VulkanContext->getDevice());
+    m_Scene->loadModels(m_VulkanContext->getDevice());
 
     {
         // append descriptor resources to context
@@ -149,13 +149,13 @@ void Application::mainloop()
             ImGui::End();
 
             ImGui::Begin("Settings");
-            if(auto filename = m_UiLayer->openFileButton("Load Model");
-               !filename.empty())
-            {
-                m_Log->info("Loadfile {}", filename);
-                m_Scene->addModel(m_VulkanContext->getDevice(), filename);
-                m_VulkanContext->recreateSwapchain();
-            }
+            // if(auto filename = m_UiLayer->openFileButton("Load Model");
+            //    !filename.empty())
+            // {
+            //     m_Log->info("Loadfile {}", filename);
+            //     m_Scene->addModel(m_VulkanContext->getDevice(), filename);
+            //     m_VulkanContext->recreateSwapchain();
+            // }
             ImGui::End();
         }
         m_UiLayer->end();
@@ -180,7 +180,6 @@ void Application::onErrorCallback(int error, const char* description)
 void Application::handleKeyboardInput(int key, int action, int mods)
 {
     (void)mods;
-    using namespace event;
 
     if(action == GLFW_PRESS)
     {
@@ -189,9 +188,18 @@ void Application::handleKeyboardInput(int key, int action, int mods)
             glfwSetWindowShouldClose(m_Window.get(), true);
             return;
         }
+        if(key == GLFW_KEY_LEFT_SHIFT)
+        {
+            // TODO TEE PAREMPI
+            m_Keyboard.lShift = true;
+        }
     }
     else if(action == GLFW_RELEASE)
     {
+        if(key == GLFW_KEY_LEFT_SHIFT)
+        {
+            m_Keyboard.lShift = false;
+        }
     }
 }
 

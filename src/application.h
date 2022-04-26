@@ -45,7 +45,7 @@ private:
     static void onMouseScrollCallback(
             GLFWwindow* window, double xoffset, double yoffset);
 
-private:
+
     logs::Logger m_Log;
     config::BaseConfig m_BaseConfig;
     std::shared_ptr<GLFWwindow> m_Window;

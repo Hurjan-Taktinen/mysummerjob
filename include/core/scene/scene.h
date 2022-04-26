@@ -19,7 +19,7 @@ public:
     Scene(entt::registry& registry, TrackBall* cam);
     void loadModels(vk::Device* device);
     void addModel(vk::Device* device, const std::string& file);
-    const auto& getDrawList() const { return m_Models; }
+    [[nodiscard]] const auto& getDrawList() const { return m_Models; }
     auto getDescriptorWrites() const { return true; }
 
     void clear()
@@ -28,7 +28,7 @@ public:
         m_Registry.clear();
     }
 
-    auto getbufferinfos() const
+    [[nodiscard]] inline auto getbufferinfos() const
     {
         std::vector<VkDescriptorBufferInfo> bufferInfos = {};
         for(const auto& model : m_Models)
@@ -38,7 +38,7 @@ public:
         return bufferInfos;
     }
 
-    auto getImageInfos() const
+    [[nodiscard]] inline auto getImageInfos() const
     {
         std::vector<VkDescriptorImageInfo> imageInfos = {};
         for(const auto& model : m_Models)
@@ -49,7 +49,7 @@ public:
         return imageInfos;
     }
 
-    const auto* getCamera() const { return m_Camera; }
+    [[nodiscard]] const auto* getCamera() const { return m_Camera; }
 
 private:
     entt::registry& m_Registry;

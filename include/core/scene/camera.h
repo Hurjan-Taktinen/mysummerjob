@@ -37,13 +37,13 @@ private:
 
     logs::Logger m_Log;
 
-    glm::vec3 m_Target;
-    glm::vec3 m_Position;
+    glm::vec3 m_Target = glm::vec3(0);
+    glm::vec3 m_Position = glm::vec3(0,0,-5);
 
     float m_Theta = std::numbers::pi;
     float m_Phi = std::numbers::pi * 0.5f;
     float m_Radius = 5.0f;
-    float m_Up = 1.0f;
+    glm::vec3 m_Up = glm::vec3(0, 1, 0);
 
     float m_Fov = 45.0f;
     float m_zNear = 0.1f;

@@ -21,11 +21,11 @@ void Texture2d::loadFromFile(
 {
     std::string extension = utils::getExtension(file);
 
-    assert(!this->device);
+    assert(this->device);
     this->device = device;
 
-    VkBuffer stagingBuffer;
-    VmaAllocation stagingMemory;
+    VkBuffer stagingBuffer = VK_NULL_HANDLE;
+    VmaAllocation stagingMemory = VK_NULL_HANDLE;
 
     std::vector<VkExtent2D> mipExtents;
     std::vector<uint32_t> mipSizes;

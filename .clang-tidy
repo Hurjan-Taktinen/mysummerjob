@@ -1,7 +1,0 @@
----
-Checks:          '*,-fuchsia-*,-zircon-*,-llvm*,-altera*,-modernize-use-trailing-return-type,-abseil-*,-readability-magic-numbers,-cppcoreguidelines-avoid-magic-numbers'
-# WarningsAsErrors: '*'
-HeaderFilterRegex: ''
-FormatStyle:     none
-
-

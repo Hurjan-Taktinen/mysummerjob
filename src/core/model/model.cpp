@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include <cassert>
+#include <iostream>
 
 namespace core::model
 {
@@ -199,6 +200,7 @@ void Model::load(const std::string& path)
         m_Log->info("{} Normals generated", m_Vertices.size());
     }
 
+
     { // Vertices
         VkDeviceSize size = sizeof(VertexPNTC) * m_Vertices.size();
         m_Device->createBufferOnGPU(
@@ -209,6 +211,7 @@ void Model::load(const std::string& path)
                 m_Vertices.data());
     }
 
+
     { // Indices
         VkDeviceSize size = sizeof(uint32_t) * m_Indices.size();
         m_Device->createBufferOnGPU(
@@ -218,6 +221,9 @@ void Model::load(const std::string& path)
                 &m_IndexMemory,
                 m_Indices.data());
     }
+
+    fmt::print("NumVertices {}\n", m_Vertices.size());
+    fmt::print("NumIndices {}\n", m_Indices.size());
 
     { // Materials
         VkDeviceSize size = sizeof(MaterialUbo) * m_Materials.size();
@@ -257,7 +263,7 @@ void Model::load(const std::string& path)
             .buffeInfo = {m_MaterialBuffer, 0, VK_WHOLE_SIZE},
             .imageInfos = std::move(infos)};
 
-    const auto ent = m_Registry.create();
+    auto ent = m_Registry.create();
     auto transform = glm::mat4{1.0f};
     auto position = glm::vec3{0.0f, 0.0f, 0.0f};
 
