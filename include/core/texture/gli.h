@@ -1,5 +1,6 @@
 
-// A proxy include for GLI to suppress compile warnings coming from inside library
+// A proxy include for GLI to suppress compile warnings coming from inside
+// library
 
 #pragma clang diagnostic push
 // #pragma clang diagnostic ignored "-Wnullability-completeness"

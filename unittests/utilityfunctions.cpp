@@ -25,7 +25,7 @@ TEST_CASE("customtypes")
 
     {
         using Myvec = NamedType<std::vector<int>, struct myvectag>;
-        std::vector<int> vec {1, 2, 3, 4, 5};
+        std::vector<int> vec{1, 2, 3, 4, 5};
 
         Myvec myvec(std::move(vec));
 
@@ -38,7 +38,7 @@ TEST_CASE("customtypes")
 
     {
         using Myvec = NamedType<std::vector<int>, struct myvectag>;
-        std::vector<int> vec {1, 2, 3, 4, 5};
+        std::vector<int> vec{1, 2, 3, 4, 5};
 
         Myvec myvec(std::move(vec));
 

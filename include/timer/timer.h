@@ -21,4 +21,3 @@ public:
 private:
     ClockType::time_point m_start = ClockType::now();
 };
-

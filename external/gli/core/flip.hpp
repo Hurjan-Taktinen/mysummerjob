@@ -9,9 +9,9 @@
 
 namespace gli
 {
-	template <typename texture>
-	texture flip(texture const & Texture);
+template<typename texture>
+texture flip(texture const& Texture);
 
-}//namespace gli
+} // namespace gli
 
 #include "flip.inl"

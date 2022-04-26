@@ -18,7 +18,7 @@ public:
     template<class F, class... Args>
     decltype(auto) submitWork(F&& f, Args&&... args)
     {
-        std::unique_lock lock {m_Mutex};
+        std::unique_lock lock{m_Mutex};
         return m_Pool.enqueue(std::forward<F>(f), std::forward<Args>(args)...);
     }
 
@@ -31,4 +31,3 @@ private:
 [[nodiscard]] WorkQueue& getWorkQueue();
 
 } // namespace core
-

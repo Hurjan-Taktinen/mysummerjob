@@ -70,8 +70,8 @@ public:
             descriptorWrite.dstSet = set;
             descriptorWrite.dstBinding = binding;
             descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorCount = static_cast<std::uint32_t>(
-                    info.size());
+            descriptorWrite.descriptorCount =
+                    static_cast<std::uint32_t>(info.size());
             descriptorWrite.descriptorType = type;
             descriptorWrite.pImageInfo = nullptr;
             descriptorWrite.pBufferInfo = nullptr;
@@ -103,9 +103,7 @@ private:
     VkDevice m_Device;
 
     std::unordered_map<std::uint32_t, VkDescriptorSetLayoutBinding> m_Bindings;
-    WriteInfo<
-            VkDescriptorBufferInfo,
-            offsetof(VkWriteDescriptorSet, pBufferInfo)>
+    WriteInfo<VkDescriptorBufferInfo, offsetof(VkWriteDescriptorSet, pBufferInfo)>
             m_Buffers;
     WriteInfo<VkDescriptorImageInfo, offsetof(VkWriteDescriptorSet, pImageInfo)>
             m_Images;

@@ -1,0 +1,7 @@
+[wrap-git]
+url = git@github.com:glfw/glfw.git
+directory = glfw3
+revision = 3.3.7
+
+[provide]
+benchmark = glfw3_dep

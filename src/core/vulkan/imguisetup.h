@@ -31,7 +31,6 @@ public:
         glm::vec2 translate;
     } pushConstants;
 
-
 private:
     void setDarkTheme();
 
@@ -54,7 +53,6 @@ private:
     VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
     VkDescriptorSet m_DescriptorSet;
-
 };
 
-} // namespace render::vk
+} // namespace core::vk

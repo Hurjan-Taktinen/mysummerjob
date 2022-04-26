@@ -39,7 +39,7 @@ public:
 protected:
     void updateDescriptor()
     {
-        descriptor = VkDescriptorImageInfo {sampler, view, layout};
+        descriptor = VkDescriptorImageInfo{sampler, view, layout};
     }
 
     void clean()

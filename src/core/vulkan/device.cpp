@@ -77,18 +77,21 @@ void Device::createLogicalDevice(
 
     if(requestedQueueTypes & VK_QUEUE_GRAPHICS_BIT)
     {
-        m_QueueFamilyIndices.graphics = getQueueFamilyIndex(
-                VK_QUEUE_GRAPHICS_BIT);
+        m_QueueFamilyIndices.graphics =
+                getQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT);
         uniqueIndices.insert(m_QueueFamilyIndices.graphics);
-        m_Log->info("Graphics Queue Family index({})", m_QueueFamilyIndices.graphics);
+        m_Log->info(
+                "Graphics Queue Family index({})",
+                m_QueueFamilyIndices.graphics);
     }
 
     if(requestedQueueTypes & VK_QUEUE_COMPUTE_BIT)
     {
-        m_QueueFamilyIndices.compute = getQueueFamilyIndex(
-                VK_QUEUE_COMPUTE_BIT);
+        m_QueueFamilyIndices.compute =
+                getQueueFamilyIndex(VK_QUEUE_COMPUTE_BIT);
         uniqueIndices.insert(m_QueueFamilyIndices.compute);
-        m_Log->info("Compute Queue Family index({})", m_QueueFamilyIndices.compute);
+        m_Log->info(
+                "Compute Queue Family index({})", m_QueueFamilyIndices.compute);
     }
     else
     {
@@ -97,10 +100,12 @@ void Device::createLogicalDevice(
 
     if(requestedQueueTypes & VK_QUEUE_TRANSFER_BIT)
     {
-        m_QueueFamilyIndices.transfer = getQueueFamilyIndex(
-                VK_QUEUE_TRANSFER_BIT);
+        m_QueueFamilyIndices.transfer =
+                getQueueFamilyIndex(VK_QUEUE_TRANSFER_BIT);
         uniqueIndices.insert(m_QueueFamilyIndices.transfer);
-        m_Log->info("Transfer Queue Family index({})", m_QueueFamilyIndices.transfer);
+        m_Log->info(
+                "Transfer Queue Family index({})",
+                m_QueueFamilyIndices.transfer);
     }
     else
     {
@@ -137,13 +142,13 @@ void Device::createLogicalDevice(
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.pNext = &indexingFeatures;
     createInfo.flags = 0;
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(
-            queueCreateInfos.size());
+    createInfo.queueCreateInfoCount =
+            static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.enabledLayerCount = 0;
     createInfo.ppEnabledLayerNames = nullptr;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(
-            requestedExtensions.size());
+    createInfo.enabledExtensionCount =
+            static_cast<uint32_t>(requestedExtensions.size());
     createInfo.ppEnabledExtensionNames = requestedExtensions.data();
     createInfo.pEnabledFeatures = &requestedFeatures.features;
 
@@ -174,8 +179,8 @@ void Device::createLogicalDevice(
 
     if(requestedQueueTypes & VK_QUEUE_TRANSFER_BIT)
     {
-        m_CommandPools.transfer = createCommandPool(
-                m_QueueFamilyIndices.transfer, 0);
+        m_CommandPools.transfer =
+                createCommandPool(m_QueueFamilyIndices.transfer, 0);
     }
 
     vkGetDeviceQueue(
@@ -761,5 +766,10 @@ uint32_t Device::findMemoryType(
     m_Log->warn("failed to find suitable memory type!");
     assert(false);
     throw std::runtime_error("");
+}
+
+const std::shared_ptr<GLFWwindow>& Device::getGLFWwindow() const
+{
+    return m_Window;
 }
 } // namespace core::vk

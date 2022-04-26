@@ -31,7 +31,7 @@ namespace core::vk
 class Context final
 {
 public:
-    Context(const std::shared_ptr<GLFWwindow> window,
+    Context(std::shared_ptr<GLFWwindow> window,
             scene::Scene* scene,
             entt::registry& registry);
 
@@ -50,7 +50,7 @@ public:
     bool renderImGui = true;
 
 private:
-    void updateOverlay(float deltaTime);
+    void updateOverlay(float dt);
     void createInstance();
     [[nodiscard]] VkPhysicalDevice selectPhysicalDevice();
     void createSynchronizationPrimitives();
@@ -68,7 +68,6 @@ private:
 
     void cleanupSwapchain();
 
-private:
     struct UniformBufferObject
     {
         glm::mat4 model;

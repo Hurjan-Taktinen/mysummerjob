@@ -125,8 +125,8 @@ VkResult DebugUtils::createDebugUtilsMessengerEXT(
         const VkAllocationCallbacks* pAllocator,
         VkDebugUtilsMessengerEXT* pMessenger)
 {
-    static const auto
-            func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+    static const auto func =
+            reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
                     vkGetInstanceProcAddr(
                             instance, "vkCreateDebugUtilsMessengerEXT"));
 
@@ -141,8 +141,8 @@ void DebugUtils::destroyDebugUtilsMessengerEXT(
         VkDebugUtilsMessengerEXT messenger,
         const VkAllocationCallbacks* pAllocator)
 {
-    static const auto
-            func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+    static const auto func =
+            reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
                     vkGetInstanceProcAddr(
                             instance, "vkDestroyDebugUtilsMessengerEXT"));
     func(instance, messenger, pAllocator);

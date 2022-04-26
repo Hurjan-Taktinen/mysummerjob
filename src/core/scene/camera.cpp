@@ -13,8 +13,8 @@ namespace core::scene
 void TrackBall::initCamera(uint32_t width, uint32_t height)
 {
     float aspect = static_cast<float>(width) / static_cast<float>(height);
-    matrices.proj = glm::perspective(
-            glm::radians(m_Fov), aspect, m_zNear, m_zFar);
+    matrices.proj =
+            glm::perspective(glm::radians(m_Fov), aspect, m_zNear, m_zFar);
     updateViewMatrix();
 }
 
@@ -117,8 +117,8 @@ void TrackBall::update(float dt)
 
 void TrackBall::updateViewMatrix()
 {
-    matrices.view = glm::lookAt(
-            m_Position, m_Target, glm::vec3 {0.0f, m_Up, 0.0f});
+    matrices.view =
+            glm::lookAt(m_Position, m_Target, glm::vec3{0.0f, m_Up, 0.0f});
 }
 
 // ----------------------------------------------------------------------------

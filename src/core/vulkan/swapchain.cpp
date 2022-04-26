@@ -37,9 +37,9 @@ Swapchain::Swapchain(VkInstance instance, Device* device) :
     };
 
     m_PresentModeList = deviceQuery(
-            vkGetPhysicalDeviceSurfacePresentModesKHR, VkPresentModeKHR {});
+            vkGetPhysicalDeviceSurfacePresentModesKHR, VkPresentModeKHR{});
     m_SurfaceFormatList = deviceQuery(
-            vkGetPhysicalDeviceSurfaceFormatsKHR, VkSurfaceFormatKHR {});
+            vkGetPhysicalDeviceSurfaceFormatsKHR, VkSurfaceFormatKHR{});
 }
 
 // ----------------------------------------------------------------------------

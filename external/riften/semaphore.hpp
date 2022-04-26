@@ -1,7 +1,7 @@
 #pragma once
 
-// Code in the file below is an adaptation (by C. J. Williams) of Jeff Preshing's portable + lightweight
-// semaphore implementations, see:
+// Code in the file below is an adaptation (by C. J. Williams) of Jeff
+// Preshing's portable + lightweight semaphore implementations, see:
 //
 // https://github.com/preshing/cpp11-on-multicore
 // https://preshing.com/20150316/semaphores-are-surprisingly-versatile/
@@ -29,28 +29,32 @@
 #include <atomic>
 #include <cassert>
 
-namespace riften {
+namespace riften
+{
 
-namespace detail {
+namespace detail
+{
 
 #if defined(_WIN32)
 //---------------------------------------------------------
 // Semaphore (Windows)
 //---------------------------------------------------------
 
-#    include <windows.h>
-#    undef min
-#    undef max
+#include <windows.h>
+#undef min
+#undef max
 
-class Semaphore {
-  private:
+class Semaphore
+{
+private:
     HANDLE m_hSema;
 
     Semaphore(const Semaphore& other) = delete;
     Semaphore& operator=(const Semaphore& other) = delete;
 
-  public:
-    Semaphore(int initialCount = 0) {
+public:
+    Semaphore(int initialCount = 0)
+    {
         assert(initialCount >= 0);
         m_hSema = CreateSemaphore(NULL, initialCount, MAXLONG, NULL);
     }
@@ -65,22 +69,26 @@ class Semaphore {
 #elif defined(__MACH__)
 //---------------------------------------------------------
 // Semaphore (Apple iOS and OSX)
-// Can't use POSIX semaphores due to http://lists.apple.com/archives/darwin-kernel/2009/Apr/msg00010.html
+// Can't use POSIX semaphores due to
+// http://lists.apple.com/archives/darwin-kernel/2009/Apr/msg00010.html
 //---------------------------------------------------------
 
-#    include <mach/mach.h>
+#include <mach/mach.h>
 
-class Semaphore {
-  private:
+class Semaphore
+{
+private:
     semaphore_t m_sema;
 
     Semaphore(const Semaphore& other) = delete;
     Semaphore& operator=(const Semaphore& other) = delete;
 
-  public:
-    Semaphore(int initialCount = 0) {
+public:
+    Semaphore(int initialCount = 0)
+    {
         assert(initialCount >= 0);
-        semaphore_create(mach_task_self(), &m_sema, SYNC_POLICY_FIFO, initialCount);
+        semaphore_create(
+                mach_task_self(), &m_sema, SYNC_POLICY_FIFO, initialCount);
     }
 
     ~Semaphore() { semaphore_destroy(mach_task_self(), m_sema); }
@@ -89,8 +97,10 @@ class Semaphore {
 
     void signal() { semaphore_signal(m_sema); }
 
-    void signal(int count) {
-        while (count-- > 0) {
+    void signal(int count)
+    {
+        while(count-- > 0)
+        {
             semaphore_signal(m_sema);
         }
     }
@@ -101,35 +111,41 @@ class Semaphore {
 // Semaphore (POSIX, Linux)
 //---------------------------------------------------------
 
-#    include <semaphore.h>
+#include <semaphore.h>
 
-class Semaphore {
-  private:
+class Semaphore
+{
+private:
     sem_t m_sema;
 
     Semaphore(const Semaphore& other) = delete;
     Semaphore& operator=(const Semaphore& other) = delete;
 
-  public:
-    Semaphore(int initialCount = 0) {
+public:
+    Semaphore(int initialCount = 0)
+    {
         assert(initialCount >= 0);
         sem_init(&m_sema, 0, initialCount);
     }
 
     ~Semaphore() { sem_destroy(&m_sema); }
 
-    void wait() {
+    void wait()
+    {
         // http://stackoverflow.com/questions/2013181/gdb-causes-sem-wait-to-fail-with-eintr-error
         int rc;
-        do {
+        do
+        {
             rc = sem_wait(&m_sema);
-        } while (rc == -1 && errno == EINTR);
+        } while(rc == -1 && errno == EINTR);
     }
 
     void signal() { sem_post(&m_sema); }
 
-    void signal(int count) {
-        while (count-- > 0) {
+    void signal(int count)
+    {
+        while(count-- > 0)
+        {
             sem_post(&m_sema);
         }
     }
@@ -137,49 +153,67 @@ class Semaphore {
 
 #else
 
-#    error Unsupported platform!
+#error Unsupported platform!
 
 #endif
 
-}  // namespace detail
+} // namespace detail
 
-class Semaphore {
-  public:
-    explicit Semaphore(std::ptrdiff_t desired) : m_count(desired) { assert(desired >= 0); }
+class Semaphore
+{
+public:
+    explicit Semaphore(std::ptrdiff_t desired) : m_count(desired)
+    {
+        assert(desired >= 0);
+    }
 
-    void release(std::ptrdiff_t update = 1) {
-        std::ptrdiff_t oldCount = m_count.fetch_add(update, std::memory_order_release);
+    void release(std::ptrdiff_t update = 1)
+    {
+        std::ptrdiff_t oldCount =
+                m_count.fetch_add(update, std::memory_order_release);
         std::ptrdiff_t toRelease = -oldCount < update ? -oldCount : update;
-        if (toRelease > 0) {
+        if(toRelease > 0)
+        {
             m_sema.signal(toRelease);
         }
     }
 
-    // If possible consumes all counts in the semaphore, otherwise blocks until released.
-    void acquire_many() {
-        for (std::ptrdiff_t spin = 0; spin < 10'000; ++spin) {
+    // If possible consumes all counts in the semaphore, otherwise blocks until
+    // released.
+    void acquire_many()
+    {
+        for(std::ptrdiff_t spin = 0; spin < 10'000; ++spin)
+        {
             std::ptrdiff_t old = m_count.load(relaxed);
-            if (old > 0 && m_count.compare_exchange_strong(old, 0, acquire)) {
+            if(old > 0 && m_count.compare_exchange_strong(old, 0, acquire))
+            {
                 return;
             }
-            std::atomic_signal_fence(acquire);  // Prevent the compiler from collapsing the loop.
+            std::atomic_signal_fence(
+                    acquire); // Prevent the compiler from collapsing the loop.
         }
 
         std::ptrdiff_t old = m_count.load(relaxed);
 
-        for (;;) {
-            if (old <= 0) {
-                if (m_count.compare_exchange_strong(old, old - 1, acq_rel, relaxed)) {
+        for(;;)
+        {
+            if(old <= 0)
+            {
+                if(m_count.compare_exchange_strong(
+                           old, old - 1, acq_rel, relaxed))
+                {
                     m_sema.wait();
                     return;
                 }
-            } else if (m_count.compare_exchange_strong(old, 0, acq_rel, relaxed)) {
+            }
+            else if(m_count.compare_exchange_strong(old, 0, acq_rel, relaxed))
+            {
                 return;
             }
         }
     }
 
-  private:
+private:
     std::atomic<std::ptrdiff_t> m_count;
     detail::Semaphore m_sema;
 
@@ -188,4 +222,4 @@ class Semaphore {
     static constexpr std::memory_order acquire = std::memory_order_acquire;
 };
 
-}  // namespace riften
+} // namespace riften

@@ -69,10 +69,10 @@ void Model::load(const std::string& path)
 
         m.ambient = glm::vec3(mat.ambient[0], mat.ambient[1], mat.ambient[2]);
         m.diffuse = glm::vec3(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
-        m.specular = glm::vec3(
-                mat.specular[0], mat.specular[1], mat.specular[2]);
-        m.emission = glm::vec3(
-                mat.emission[0], mat.emission[1], mat.emission[2]);
+        m.specular =
+                glm::vec3(mat.specular[0], mat.specular[1], mat.specular[2]);
+        m.emission =
+                glm::vec3(mat.emission[0], mat.emission[1], mat.emission[2]);
         m.transmittance = glm::vec3(
                 mat.transmittance[0],
                 mat.transmittance[1],
@@ -96,8 +96,8 @@ void Model::load(const std::string& path)
                 auto ret = directory + "/" + mat.diffuse_texname;
                 m_Log->info("DIFFUSE TEXTURE NAME {}", ret);
                 m_TexturePaths.push_back(ret);
-                m.diffuseTextureID = static_cast<uint32_t>(
-                        m_TexturePaths.size() - 1);
+                m.diffuseTextureID =
+                        static_cast<uint32_t>(m_TexturePaths.size() - 1);
             }
         }
         { // Specular
@@ -106,8 +106,8 @@ void Model::load(const std::string& path)
                 auto ret = directory + "/" + mat.specular_texname;
                 m_Log->info("SPECULAR TEXTURE NAME {}", ret);
                 m_TexturePaths.push_back(ret);
-                m.specularTextureID = static_cast<uint32_t>(
-                        m_TexturePaths.size() - 1);
+                m.specularTextureID =
+                        static_cast<uint32_t>(m_TexturePaths.size() - 1);
             }
         }
         { // Normal
@@ -116,8 +116,8 @@ void Model::load(const std::string& path)
                 auto ret = directory + "/" + mat.normal_texname;
                 m_Log->info("NORMAL TEXTURE NAME {}", ret);
                 m_TexturePaths.push_back(ret);
-                m.normalTextureID = static_cast<uint32_t>(
-                        m_TexturePaths.size() - 1);
+                m.normalTextureID =
+                        static_cast<uint32_t>(m_TexturePaths.size() - 1);
             }
         }
         m_Materials.push_back(m);
@@ -150,8 +150,8 @@ void Model::load(const std::string& path)
             if(!attrib.texcoords.empty() && index.texcoord_index >= 0)
             {
                 vertex.t.x = attrib.texcoords[2 * index.texcoord_index + 0];
-                vertex.t.y = 1.0f
-                             - attrib.texcoords[2 * index.texcoord_index + 1];
+                vertex.t.y =
+                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1];
             }
 
             if(!attrib.colors.empty())
@@ -247,19 +247,19 @@ void Model::load(const std::string& path)
         infos.push_back(info);
     }
 
-    scene::component::VertexInfo vertexInfo {
+    scene::component::VertexInfo vertexInfo{
             .numIndices = m_Indices.size(),
             .vertexBuffer = m_VertexBuffer,
             .indexBuffer = m_IndexBuffer,
     };
 
-    scene::component::RenderInfo renderInfo {
+    scene::component::RenderInfo renderInfo{
             .buffeInfo = {m_MaterialBuffer, 0, VK_WHOLE_SIZE},
             .imageInfos = std::move(infos)};
 
     const auto ent = m_Registry.create();
-    auto transform = glm::mat4 {1.0f};
-    auto position = glm::vec3 {0.0f, 0.0f, 0.0f};
+    auto transform = glm::mat4{1.0f};
+    auto position = glm::vec3{0.0f, 0.0f, 0.0f};
 
     glm::translate(transform, position);
 

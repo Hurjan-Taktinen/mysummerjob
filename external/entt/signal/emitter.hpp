@@ -1,7 +1,6 @@
 #ifndef ENTT_SIGNAL_EMITTER_HPP
 #define ENTT_SIGNAL_EMITTER_HPP
 
-
 #include <algorithm>
 #include <functional>
 #include <iterator>
@@ -14,9 +13,8 @@
 #include "../core/fwd.hpp"
 #include "../core/type_info.hpp"
 
-
-namespace entt {
-
+namespace entt
+{
 
 /**
  * @brief General purpose event emitter.
@@ -40,79 +38,99 @@ namespace entt {
  * @tparam Derived Actual type of emitter that extends the class template.
  */
 template<typename Derived>
-class emitter {
-    struct basic_pool {
+class emitter
+{
+    struct basic_pool
+    {
         virtual ~basic_pool() = default;
         virtual bool empty() const ENTT_NOEXCEPT = 0;
         virtual void clear() ENTT_NOEXCEPT = 0;
     };
 
     template<typename Event>
-    struct pool_handler final: basic_pool {
-        static_assert(std::is_same_v<Event, std::decay_t<Event>>, "Invalid event type");
+    struct pool_handler final : basic_pool
+    {
+        static_assert(
+                std::is_same_v<Event, std::decay_t<Event>>,
+                "Invalid event type");
 
-        using listener_type = std::function<void(Event &, Derived &)>;
+        using listener_type = std::function<void(Event&, Derived&)>;
         using element_type = std::pair<bool, listener_type>;
         using container_type = std::list<element_type>;
         using connection_type = typename container_type::iterator;
 
-        [[nodiscard]] bool empty() const ENTT_NOEXCEPT override {
-            auto pred = [](auto &&element) { return element.first; };
+        [[nodiscard]] bool empty() const ENTT_NOEXCEPT override
+        {
+            auto pred = [](auto&& element) { return element.first; };
 
-            return std::all_of(once_list.cbegin(), once_list.cend(), pred) &&
-                    std::all_of(on_list.cbegin(), on_list.cend(), pred);
+            return std::all_of(once_list.cbegin(), once_list.cend(), pred)
+                   && std::all_of(on_list.cbegin(), on_list.cend(), pred);
         }
 
-        void clear() ENTT_NOEXCEPT override {
-            if(publishing) {
-                for(auto &&element: once_list) {
+        void clear() ENTT_NOEXCEPT override
+        {
+            if(publishing)
+            {
+                for(auto&& element : once_list)
+                {
                     element.first = true;
                 }
 
-                for(auto &&element: on_list) {
+                for(auto&& element : on_list)
+                {
                     element.first = true;
                 }
-            } else {
+            }
+            else
+            {
                 once_list.clear();
                 on_list.clear();
             }
         }
 
-        connection_type once(listener_type listener) {
-            return once_list.emplace(once_list.cend(), false, std::move(listener));
+        connection_type once(listener_type listener)
+        {
+            return once_list.emplace(
+                    once_list.cend(), false, std::move(listener));
         }
 
-        connection_type on(listener_type listener) {
+        connection_type on(listener_type listener)
+        {
             return on_list.emplace(on_list.cend(), false, std::move(listener));
         }
 
-        void erase(connection_type conn) {
+        void erase(connection_type conn)
+        {
             conn->first = true;
 
-            if(!publishing) {
-                auto pred = [](auto &&element) { return element.first; };
+            if(!publishing)
+            {
+                auto pred = [](auto&& element) { return element.first; };
                 once_list.remove_if(pred);
                 on_list.remove_if(pred);
             }
         }
 
-        void publish(Event &event, Derived &ref) {
+        void publish(Event& event, Derived& ref)
+        {
             container_type swap_list;
             once_list.swap(swap_list);
 
             publishing = true;
 
-            for(auto &&element: on_list) {
+            for(auto&& element : on_list)
+            {
                 element.first ? void() : element.second(event, ref);
             }
 
-            for(auto &&element: swap_list) {
+            for(auto&& element : swap_list)
+            {
                 element.first ? void() : element.second(event, ref);
             }
 
             publishing = false;
 
-            on_list.remove_if([](auto &&element) { return element.first; });
+            on_list.remove_if([](auto&& element) { return element.first; });
         }
 
     private:
@@ -122,24 +140,31 @@ class emitter {
     };
 
     template<typename Event>
-    [[nodiscard]] pool_handler<Event> * assure() {
+    [[nodiscard]] pool_handler<Event>* assure()
+    {
         const auto index = type_seq<Event>::value();
 
-        if(!(index < pools.size())) {
-            pools.resize(std::size_t(index)+1u);
+        if(!(index < pools.size()))
+        {
+            pools.resize(std::size_t(index) + 1u);
         }
 
-        if(!pools[index]) {
+        if(!pools[index])
+        {
             pools[index].reset(new pool_handler<Event>{});
         }
 
-        return static_cast<pool_handler<Event> *>(pools[index].get());
+        return static_cast<pool_handler<Event>*>(pools[index].get());
     }
 
     template<typename Event>
-    [[nodiscard]] const pool_handler<Event> * assure() const {
+    [[nodiscard]] const pool_handler<Event>* assure() const
+    {
         const auto index = type_seq<Event>::value();
-        return (!(index < pools.size()) || !pools[index]) ? nullptr : static_cast<const pool_handler<Event> *>(pools[index].get());
+        return (!(index < pools.size()) || !pools[index])
+                       ? nullptr
+                       : static_cast<const pool_handler<Event>*>(
+                               pools[index].get());
     }
 
 public:
@@ -157,7 +182,8 @@ public:
      * @tparam Event Type of event for which the connection is created.
      */
     template<typename Event>
-    struct connection: private pool_handler<Event>::connection_type {
+    struct connection : private pool_handler<Event>::connection_type
+    {
         /** @brief Event emitters are friend classes of connections. */
         friend class emitter;
 
@@ -168,24 +194,28 @@ public:
          * @brief Creates a connection that wraps its underlying instance.
          * @param conn A connection object to wrap.
          */
-        connection(typename pool_handler<Event>::connection_type conn)
-            : pool_handler<Event>::connection_type{std::move(conn)}
-        {}
+        connection(typename pool_handler<Event>::connection_type conn) :
+            pool_handler<Event>::connection_type{std::move(conn)}
+        {
+        }
     };
 
     /*! @brief Default constructor. */
     emitter() = default;
 
     /*! @brief Default destructor. */
-    virtual ~emitter() {
-        static_assert(std::is_base_of_v<emitter<Derived>, Derived>, "Incorrect use of the class template");
+    virtual ~emitter()
+    {
+        static_assert(
+                std::is_base_of_v<emitter<Derived>, Derived>,
+                "Incorrect use of the class template");
     }
 
     /*! @brief Default move constructor. */
-    emitter(emitter &&) = default;
+    emitter(emitter&&) = default;
 
     /*! @brief Default move assignment operator. @return This emitter. */
-    emitter & operator=(emitter &&) = default;
+    emitter& operator=(emitter&&) = default;
 
     /**
      * @brief Emits the given event.
@@ -199,9 +229,10 @@ public:
      * @param args Parameters to use to initialize the event.
      */
     template<typename Event, typename... Args>
-    void publish(Args &&... args) {
+    void publish(Args&&... args)
+    {
         Event instance{std::forward<Args>(args)...};
-        assure<Event>()->publish(instance, *static_cast<Derived *>(this));
+        assure<Event>()->publish(instance, *static_cast<Derived*>(this));
     }
 
     /**
@@ -225,7 +256,8 @@ public:
      * @return Connection object that can be used to disconnect the listener.
      */
     template<typename Event>
-    connection<Event> on(listener<Event> instance) {
+    connection<Event> on(listener<Event> instance)
+    {
         return assure<Event>()->on(std::move(instance));
     }
 
@@ -250,7 +282,8 @@ public:
      * @return Connection object that can be used to disconnect the listener.
      */
     template<typename Event>
-    connection<Event> once(listener<Event> instance) {
+    connection<Event> once(listener<Event> instance)
+    {
         return assure<Event>()->once(std::move(instance));
     }
 
@@ -264,7 +297,8 @@ public:
      * @param conn A valid connection.
      */
     template<typename Event>
-    void erase(connection<Event> conn) {
+    void erase(connection<Event> conn)
+    {
         assure<Event>()->erase(std::move(conn));
     }
 
@@ -277,7 +311,8 @@ public:
      * @tparam Event Type of event to reset.
      */
     template<typename Event>
-    void clear() {
+    void clear()
+    {
         assure<Event>()->clear();
     }
 
@@ -287,9 +322,12 @@ public:
      * All the connections previously returned are invalidated. Using them
      * results in undefined behavior.
      */
-    void clear() ENTT_NOEXCEPT {
-        for(auto &&cpool: pools) {
-            if(cpool) {
+    void clear() ENTT_NOEXCEPT
+    {
+        for(auto&& cpool : pools)
+        {
+            if(cpool)
+            {
                 cpool->clear();
             }
         }
@@ -301,8 +339,9 @@ public:
      * @return True if there are no listeners registered, false otherwise.
      */
     template<typename Event>
-    [[nodiscard]] bool empty() const {
-        const auto *cpool = assure<Event>();
+    [[nodiscard]] bool empty() const
+    {
+        const auto* cpool = assure<Event>();
         return !cpool || cpool->empty();
     }
 
@@ -310,8 +349,9 @@ public:
      * @brief Checks if there are listeners registered with the event emitter.
      * @return True if there are no listeners registered, false otherwise.
      */
-    [[nodiscard]] bool empty() const ENTT_NOEXCEPT {
-        return std::all_of(pools.cbegin(), pools.cend(), [](auto &&cpool) {
+    [[nodiscard]] bool empty() const ENTT_NOEXCEPT
+    {
+        return std::all_of(pools.cbegin(), pools.cend(), [](auto&& cpool) {
             return !cpool || cpool->empty();
         });
     }
@@ -320,8 +360,6 @@ private:
     std::vector<std::unique_ptr<basic_pool>> pools{};
 };
 
-
-}
-
+} // namespace entt
 
 #endif

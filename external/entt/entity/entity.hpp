@@ -1,15 +1,13 @@
 #ifndef ENTT_ENTITY_ENTITY_HPP
 #define ENTT_ENTITY_ENTITY_HPP
 
-
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
 #include "../config/config.h"
 
-
-namespace entt {
-
+namespace entt
+{
 
 /**
  * @brief Entity traits.
@@ -20,16 +18,15 @@ namespace entt {
 template<typename, typename = void>
 struct entt_traits;
 
-
 /**
  * @brief Entity traits for enumeration types.
  * @tparam Type The type to check.
  */
 template<typename Type>
-struct entt_traits<Type, std::enable_if_t<std::is_enum_v<Type>>>
-        : entt_traits<std::underlying_type_t<Type>>
-{};
-
+struct entt_traits<Type, std::enable_if_t<std::is_enum_v<Type>>> :
+    entt_traits<std::underlying_type_t<Type>>
+{
+};
 
 /**
  * @brief Entity traits for a 32 bits entity identifier.
@@ -40,7 +37,8 @@ struct entt_traits<Type, std::enable_if_t<std::is_enum_v<Type>>>
  * * 12 bit for the version (resets in [0-4095]).
  */
 template<>
-struct entt_traits<std::uint32_t> {
+struct entt_traits<std::uint32_t>
+{
     /*! @brief Underlying entity type. */
     using entity_type = std::uint32_t;
     /*! @brief Underlying version type. */
@@ -56,7 +54,6 @@ struct entt_traits<std::uint32_t> {
     static constexpr std::size_t entity_shift = 20u;
 };
 
-
 /**
  * @brief Entity traits for a 64 bits entity identifier.
  *
@@ -66,7 +63,8 @@ struct entt_traits<std::uint32_t> {
  * * 32 bit for the version (an indecently large number).
  */
 template<>
-struct entt_traits<std::uint64_t> {
+struct entt_traits<std::uint64_t>
+{
     /*! @brief Underlying entity type. */
     using entity_type = std::uint64_t;
     /*! @brief Underlying version type. */
@@ -82,7 +80,6 @@ struct entt_traits<std::uint64_t> {
     static constexpr std::size_t entity_shift = 32u;
 };
 
-
 /**
  * @brief Converts an entity type to its underlying type.
  * @tparam Entity The value type.
@@ -90,20 +87,22 @@ struct entt_traits<std::uint64_t> {
  * @return The integral representation of the given value.
  */
 template<typename Entity>
-[[nodiscard]] constexpr auto to_integral(const Entity entity) ENTT_NOEXCEPT {
+[[nodiscard]] constexpr auto to_integral(const Entity entity) ENTT_NOEXCEPT
+{
     return static_cast<typename entt_traits<Entity>::entity_type>(entity);
 }
 
-
 /*! @brief Null object for all entity identifiers.  */
-struct null_t {
+struct null_t
+{
     /**
      * @brief Converts the null object to identifiers of any type.
      * @tparam Entity Type of entity identifier.
      * @return The null representation for the given identifier.
      */
     template<typename Entity>
-    [[nodiscard]] constexpr operator Entity() const ENTT_NOEXCEPT {
+    [[nodiscard]] constexpr operator Entity() const ENTT_NOEXCEPT
+    {
         return Entity{entt_traits<Entity>::entity_mask};
     }
 
@@ -111,7 +110,8 @@ struct null_t {
      * @brief Compares two null objects.
      * @return True in all cases.
      */
-    [[nodiscard]] constexpr bool operator==(const null_t &) const ENTT_NOEXCEPT {
+    [[nodiscard]] constexpr bool operator==(const null_t&) const ENTT_NOEXCEPT
+    {
         return true;
     }
 
@@ -119,7 +119,8 @@ struct null_t {
      * @brief Compares two null objects.
      * @return False in all cases.
      */
-    [[nodiscard]] constexpr bool operator!=(const null_t &) const ENTT_NOEXCEPT {
+    [[nodiscard]] constexpr bool operator!=(const null_t&) const ENTT_NOEXCEPT
+    {
         return false;
     }
 
@@ -130,8 +131,11 @@ struct null_t {
      * @return False if the two elements differ, true otherwise.
      */
     template<typename Entity>
-    [[nodiscard]] constexpr bool operator==(const Entity &entity) const ENTT_NOEXCEPT {
-        return (to_integral(entity) & entt_traits<Entity>::entity_mask) == to_integral(static_cast<Entity>(*this));
+    [[nodiscard]] constexpr bool operator==(const Entity& entity) const
+            ENTT_NOEXCEPT
+    {
+        return (to_integral(entity) & entt_traits<Entity>::entity_mask)
+               == to_integral(static_cast<Entity>(*this));
     }
 
     /**
@@ -141,11 +145,12 @@ struct null_t {
      * @return True if the two elements differ, false otherwise.
      */
     template<typename Entity>
-    [[nodiscard]] constexpr bool operator!=(const Entity &entity) const ENTT_NOEXCEPT {
+    [[nodiscard]] constexpr bool operator!=(const Entity& entity) const
+            ENTT_NOEXCEPT
+    {
         return !(entity == *this);
     }
 };
-
 
 /**
  * @brief Compares a null object and an entity identifier of any type.
@@ -155,10 +160,11 @@ struct null_t {
  * @return False if the two elements differ, true otherwise.
  */
 template<typename Entity>
-[[nodiscard]] constexpr bool operator==(const Entity &entity, const null_t &other) ENTT_NOEXCEPT {
+[[nodiscard]] constexpr bool operator==(
+        const Entity& entity, const null_t& other) ENTT_NOEXCEPT
+{
     return other.operator==(entity);
 }
-
 
 /**
  * @brief Compares a null object and an entity identifier of any type.
@@ -168,16 +174,16 @@ template<typename Entity>
  * @return True if the two elements differ, false otherwise.
  */
 template<typename Entity>
-[[nodiscard]] constexpr bool operator!=(const Entity &entity, const null_t &other) ENTT_NOEXCEPT {
+[[nodiscard]] constexpr bool operator!=(
+        const Entity& entity, const null_t& other) ENTT_NOEXCEPT
+{
     return !(other == entity);
 }
-
 
 /**
  * Internal details not to be documented.
  * @endcond
  */
-
 
 /**
  * @brief Compile-time constant for null entities.
@@ -188,8 +194,6 @@ template<typename Entity>
  */
 inline constexpr null_t null{};
 
-
-}
-
+} // namespace entt
 
 #endif

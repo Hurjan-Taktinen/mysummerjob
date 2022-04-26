@@ -82,8 +82,8 @@ void Texture2d::loadFromFile(
         mipLevels = 1;
         layout = imageLayout;
 
-        VkDeviceSize imageSize = static_cast<VkDeviceSize>(
-                texWidth * texHeight * 4);
+        VkDeviceSize imageSize =
+                static_cast<VkDeviceSize>(texWidth * texHeight * 4);
 
         for(size_t i = 0; i < 1; ++i)
         {
@@ -264,7 +264,7 @@ void Texture2d::loadFromFile(
     }
 
     {
-        VkImageViewCreateInfo viewCreateInfo {};
+        VkImageViewCreateInfo viewCreateInfo{};
         viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         viewCreateInfo.format = format;
@@ -315,7 +315,7 @@ void Texture2d::loadFromBuffer(
             &stagingMemory,
             buffer);
 
-    VkExtent2D extent {width, height};
+    VkExtent2D extent{width, height};
 
     device->createImage(
             imageUsage | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
@@ -437,7 +437,7 @@ void Texture2d::loadFromBuffer(
     }
 
     {
-        VkImageViewCreateInfo viewCreateInfo {};
+        VkImageViewCreateInfo viewCreateInfo{};
         viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         viewCreateInfo.format = format;
@@ -454,7 +454,7 @@ void Texture2d::loadFromBuffer(
                 device->getLogicalDevice(), &viewCreateInfo, nullptr, &view));
     }
 
-    descriptor = VkDescriptorImageInfo {sampler, view, layout};
+    descriptor = VkDescriptorImageInfo{sampler, view, layout};
 }
 
 } // namespace core::texture

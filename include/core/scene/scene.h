@@ -49,11 +49,11 @@ public:
         return imageInfos;
     }
 
-    const auto* getCamera() const { return m_Camera;}
+    const auto* getCamera() const { return m_Camera; }
 
 private:
     entt::registry& m_Registry;
     TrackBall* m_Camera = nullptr;
     std::vector<model::Model> m_Models;
 };
-} // namespace scene
+} // namespace core::scene

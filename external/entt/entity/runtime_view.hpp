@@ -1,7 +1,6 @@
 #ifndef ENTT_ENTITY_RUNTIME_VIEW_HPP
 #define ENTT_ENTITY_RUNTIME_VIEW_HPP
 
-
 #include <iterator>
 #include <vector>
 #include <utility>
@@ -11,9 +10,8 @@
 #include "sparse_set.hpp"
 #include "fwd.hpp"
 
-
-namespace entt {
-
+namespace entt
+{
 
 /**
  * @brief Runtime view.
@@ -54,25 +52,42 @@ namespace entt {
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
 template<typename Entity>
-class basic_runtime_view final {
+class basic_runtime_view final
+{
     using underlying_iterator = typename basic_sparse_set<Entity>::iterator;
 
-    class view_iterator final {
+    class view_iterator final
+    {
         friend class basic_runtime_view<Entity>;
 
-        view_iterator(const std::vector<const basic_sparse_set<Entity> *> &cpools, const std::vector<const basic_sparse_set<Entity> *> &ignore, underlying_iterator curr) ENTT_NOEXCEPT
-            : pools{&cpools},
-              filter{&ignore},
-              it{curr}
+        view_iterator(
+                const std::vector<const basic_sparse_set<Entity>*>& cpools,
+                const std::vector<const basic_sparse_set<Entity>*>& ignore,
+                underlying_iterator curr) ENTT_NOEXCEPT :
+            pools{&cpools},
+            filter{&ignore},
+            it{curr}
         {
-            if(it != (*pools)[0]->end() && !valid()) {
+            if(it != (*pools)[0]->end() && !valid())
+            {
                 ++(*this);
             }
         }
 
-        [[nodiscard]] bool valid() const {
-            return std::all_of(pools->begin()++, pools->end(), [entt = *it](const auto *curr) { return curr->contains(entt); })
-                    && std::none_of(filter->cbegin(), filter->cend(), [entt = *it](const auto *curr) { return curr && curr->contains(entt); });
+        [[nodiscard]] bool valid() const
+        {
+            return std::all_of(
+                           pools->begin()++,
+                           pools->end(),
+                           [entt = *it](const auto* curr) {
+                               return curr->contains(entt);
+                           })
+                   && std::none_of(
+                           filter->cbegin(),
+                           filter->cend(),
+                           [entt = *it](const auto* curr) {
+                               return curr && curr->contains(entt);
+                           });
         }
 
     public:
@@ -84,51 +99,55 @@ class basic_runtime_view final {
 
         view_iterator() ENTT_NOEXCEPT = default;
 
-        view_iterator & operator++() {
-            while(++it != (*pools)[0]->end() && !valid());
+        view_iterator& operator++()
+        {
+            while(++it != (*pools)[0]->end() && !valid())
+                ;
             return *this;
         }
 
-        view_iterator operator++(int) {
+        view_iterator operator++(int)
+        {
             view_iterator orig = *this;
             return ++(*this), orig;
         }
 
-        view_iterator & operator--() ENTT_NOEXCEPT {
-            while(--it != (*pools)[0]->begin() && !valid());
+        view_iterator& operator--() ENTT_NOEXCEPT
+        {
+            while(--it != (*pools)[0]->begin() && !valid())
+                ;
             return *this;
         }
 
-        view_iterator operator--(int) ENTT_NOEXCEPT {
+        view_iterator operator--(int) ENTT_NOEXCEPT
+        {
             view_iterator orig = *this;
             return operator--(), orig;
         }
 
-        [[nodiscard]] bool operator==(const view_iterator &other) const ENTT_NOEXCEPT {
+        [[nodiscard]] bool operator==(const view_iterator& other) const
+                ENTT_NOEXCEPT
+        {
             return other.it == it;
         }
 
-        [[nodiscard]] bool operator!=(const view_iterator &other) const ENTT_NOEXCEPT {
+        [[nodiscard]] bool operator!=(const view_iterator& other) const
+                ENTT_NOEXCEPT
+        {
             return !(*this == other);
         }
 
-        [[nodiscard]] pointer operator->() const {
-            return it.operator->();
-        }
+        [[nodiscard]] pointer operator->() const { return it.operator->(); }
 
-        [[nodiscard]] reference operator*() const {
-            return *operator->();
-        }
+        [[nodiscard]] reference operator*() const { return *operator->(); }
 
     private:
-        const std::vector<const basic_sparse_set<Entity> *> *pools;
-        const std::vector<const basic_sparse_set<Entity> *> *filter;
+        const std::vector<const basic_sparse_set<Entity>*>* pools;
+        const std::vector<const basic_sparse_set<Entity>*>* filter;
         underlying_iterator it;
     };
 
-    [[nodiscard]] bool valid() const {
-        return !pools.empty() && pools.front();
-    }
+    [[nodiscard]] bool valid() const { return !pools.empty() && pools.front(); }
 
 public:
     /*! @brief Underlying entity identifier. */
@@ -139,23 +158,26 @@ public:
     using iterator = view_iterator;
 
     /*! @brief Default constructor to use to create empty, invalid views. */
-    basic_runtime_view() ENTT_NOEXCEPT
-        : pools{},
-          filter{}
-    {}
+    basic_runtime_view() ENTT_NOEXCEPT : pools{}, filter{} {}
 
     /**
      * @brief Constructs a runtime view from a set of storage classes.
      * @param cpools The storage for the types to iterate.
      * @param epools The storage for the types used to filter the view.
      */
-    basic_runtime_view(std::vector<const basic_sparse_set<Entity> *> cpools, std::vector<const basic_sparse_set<Entity> *> epools) ENTT_NOEXCEPT
-        : pools{std::move(cpools)},
-          filter{std::move(epools)}
+    basic_runtime_view(
+            std::vector<const basic_sparse_set<Entity>*> cpools,
+            std::vector<const basic_sparse_set<Entity>*> epools) ENTT_NOEXCEPT :
+        pools{std::move(cpools)},
+        filter{std::move(epools)}
     {
-        const auto it = std::min_element(pools.begin(), pools.end(), [](const auto *lhs, const auto *rhs) {
-            return (!lhs && rhs) || (lhs && rhs && lhs->size() < rhs->size());
-        });
+        const auto it = std::min_element(
+                pools.begin(),
+                pools.end(),
+                [](const auto* lhs, const auto* rhs) {
+                    return (!lhs && rhs)
+                           || (lhs && rhs && lhs->size() < rhs->size());
+                });
 
         // brings the best candidate (if any) on front of the vector
         std::rotate(pools.begin(), it, pools.end());
@@ -165,7 +187,8 @@ public:
      * @brief Estimates the number of entities iterated by the view.
      * @return Estimated number of entities iterated by the view.
      */
-    [[nodiscard]] size_type size_hint() const {
+    [[nodiscard]] size_type size_hint() const
+    {
         return valid() ? pools.front()->size() : size_type{};
     }
 
@@ -179,8 +202,10 @@ public:
      *
      * @return An iterator to the first entity that has the given components.
      */
-    [[nodiscard]] iterator begin() const {
-        return valid() ? iterator{pools, filter, pools[0]->begin()} : iterator{};
+    [[nodiscard]] iterator begin() const
+    {
+        return valid() ? iterator{pools, filter, pools[0]->begin()}
+                       : iterator{};
     }
 
     /**
@@ -194,7 +219,8 @@ public:
      * @return An iterator to the entity following the last entity that has the
      * given components.
      */
-    [[nodiscard]] iterator end() const {
+    [[nodiscard]] iterator end() const
+    {
         return valid() ? iterator{pools, filter, pools[0]->end()} : iterator{};
     }
 
@@ -203,9 +229,21 @@ public:
      * @param entt A valid entity identifier.
      * @return True if the view contains the given entity, false otherwise.
      */
-    [[nodiscard]] bool contains(const entity_type entt) const {
-        return valid() && std::all_of(pools.cbegin(), pools.cend(), [entt](const auto *curr) { return curr->contains(entt); })
-                && std::none_of(filter.cbegin(), filter.cend(), [entt](const auto *curr) { return curr && curr->contains(entt); });
+    [[nodiscard]] bool contains(const entity_type entt) const
+    {
+        return valid()
+               && std::all_of(
+                       pools.cbegin(),
+                       pools.cend(),
+                       [entt](const auto* curr) {
+                           return curr->contains(entt);
+                       })
+               && std::none_of(
+                       filter.cbegin(),
+                       filter.cend(),
+                       [entt](const auto* curr) {
+                           return curr && curr->contains(entt);
+                       });
     }
 
     /**
@@ -224,19 +262,19 @@ public:
      * @param func A valid function object.
      */
     template<typename Func>
-    void each(Func func) const {
-        for(const auto entity: *this) {
+    void each(Func func) const
+    {
+        for(const auto entity : *this)
+        {
             func(entity);
         }
     }
 
 private:
-    std::vector<const basic_sparse_set<Entity> *> pools;
-    std::vector<const basic_sparse_set<Entity> *> filter;
+    std::vector<const basic_sparse_set<Entity>*> pools;
+    std::vector<const basic_sparse_set<Entity>*> filter;
 };
 
-
-}
-
+} // namespace entt
 
 #endif

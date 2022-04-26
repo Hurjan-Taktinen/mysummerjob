@@ -15,8 +15,7 @@
 
 namespace app
 {
-class Application final :
-    public std::enable_shared_from_this<Application>
+class Application final : public std::enable_shared_from_this<Application>
 {
 public:
     Application();

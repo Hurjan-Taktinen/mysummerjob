@@ -31,41 +31,41 @@ public:
             std::vector<const char*> requestedExtensions,
             VkQueueFlags requestedQueueTypes);
 
-    const std::shared_ptr<GLFWwindow>& getGLFWwindow() const
+    [[nodiscard]] const std::shared_ptr<GLFWwindow>& getGLFWwindow() const;
+    [[nodiscard]] VkDevice getLogicalDevice() const { return m_LogicalDevice; }
+    [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const
     {
-        return m_Window;
+        return m_PhysicalDevice;
     }
-    VkDevice getLogicalDevice() const { return m_LogicalDevice; }
-    VkPhysicalDevice getPhysicalDevice() const { return m_PhysicalDevice; }
-    VmaAllocator getAllocator() const { return m_Allocator; }
+    [[nodiscard]] VmaAllocator getAllocator() const { return m_Allocator; }
 
-    uint32_t getGraphicsQueueFamily() const
+    [[nodiscard]] uint32_t getGraphicsQueueFamily() const
     {
         return m_QueueFamilyIndices.graphics;
     }
-    uint32_t getComputeQueueFamily() const
+    [[nodiscard]] uint32_t getComputeQueueFamily() const
     {
         return m_QueueFamilyIndices.compute;
     }
-    uint32_t getTransferQueueFamily() const
+    [[nodiscard]] uint32_t getTransferQueueFamily() const
     {
         return m_QueueFamilyIndices.transfer;
     }
 
-    VkQueue getGraphicsQueue() const { return m_Queue.graphics; }
-    VkQueue getComputeQueue() const { return m_Queue.compute; }
-    VkQueue getPresentQueue() const { return m_Queue.present; }
-    VkQueue getTransferQueue() const { return m_Queue.transfer; }
+    [[nodiscard]] VkQueue getGraphicsQueue() const { return m_Queue.graphics; }
+    [[nodiscard]] VkQueue getComputeQueue() const { return m_Queue.compute; }
+    [[nodiscard]] VkQueue getPresentQueue() const { return m_Queue.present; }
+    [[nodiscard]] VkQueue getTransferQueue() const { return m_Queue.transfer; }
 
-    VkCommandPool getGraphicsCommandPool() const
+    [[nodiscard]] VkCommandPool getGraphicsCommandPool() const
     {
         return m_CommandPools.graphics;
     }
-    VkCommandPool getComputeCommandPool() const
+    [[nodiscard]] VkCommandPool getComputeCommandPool() const
     {
         return m_CommandPools.compute;
     }
-    VkCommandPool getTransferCommandPool() const
+    [[nodiscard]] VkCommandPool getTransferCommandPool() const
     {
         return m_CommandPools.transfer;
     }
@@ -143,12 +143,11 @@ public:
             uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 private:
-    uint32_t getQueueFamilyIndex(VkQueueFlagBits queueFlags) const;
-    VkCommandPool createCommandPool(
+    [[nodiscard]] uint32_t getQueueFamilyIndex(
+            VkQueueFlagBits queueFlags) const;
+    [[nodiscard]] VkCommandPool createCommandPool(
             uint32_t queueFamilyIndex,
             VkCommandPoolCreateFlags poolFlags) const;
-
-private:
 
     logs::Logger m_Log;
     std::shared_ptr<GLFWwindow> m_Window;
@@ -171,9 +170,9 @@ private:
 
     struct
     {
-        uint32_t graphics = VK_NULL_HANDLE;
-        uint32_t compute = VK_NULL_HANDLE;
-        uint32_t transfer = VK_NULL_HANDLE;
+        uint32_t graphics = -1;
+        uint32_t compute = -1;
+        uint32_t transfer = -1;
     } m_QueueFamilyIndices;
 
     struct

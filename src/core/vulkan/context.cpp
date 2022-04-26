@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
+#include <utility>
 
 namespace core::vk
 {
@@ -18,12 +19,12 @@ namespace core::vk
 //
 
 Context::Context(
-        const std::shared_ptr<GLFWwindow> window,
+        std::shared_ptr<GLFWwindow> window,
         scene::Scene* scene,
         entt::registry& registry) :
     m_Log(logs::Log::create("Vulkan Context")),
     m_Config(config::Config::getVulkanConfig()),
-    m_Window(window),
+    m_Window(std::move(window)),
     m_Scene(scene),
     m_Registry(registry)
 {
@@ -119,19 +120,20 @@ void Context::init(VkExtent2D swapchainExtent)
 
     createInstance();
 
-    if(m_Config.enableDebugUtils)
+    if(m_Config.enableDebugUtils != 0)
     {
         VkDebugUtilsMessageSeverityFlagsEXT messageSeverity =
                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
                 | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
         // | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
 
-        VkDebugUtilsMessageTypeFlagsEXT
-                messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
-                              | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        VkDebugUtilsMessageTypeFlagsEXT messageType =
+                VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+                | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
-        if(m_Config.enableValidationLayers)
+        if(m_Config.enableValidationLayers != 0) {
             messageType |= VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+}
 
         m_DebugUtils = std::make_unique<DebugUtils>(
                 m_Instance, messageSeverity, messageType);
@@ -199,8 +201,8 @@ void Context::updateOverlay(float dt)
     (void)dt;
     auto& io = ImGui::GetIO();
 
-    m_ui->pushConstants.scale = glm::vec2(
-            2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+    m_ui->pushConstants.scale =
+            glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
     m_ui->pushConstants.translate = glm::vec2(-1.0f);
 
     // ImGui::ShowDemoWindow();
@@ -332,7 +334,7 @@ void Context::createInstance()
 
     { // GLFW should ask for VK_KHR_SURFACE and platform depended surface
         uint32_t count = 0;
-        const char** glfwExtensions;
+        const char** glfwExtensions = nullptr;
         glfwExtensions = glfwGetRequiredInstanceExtensions(&count);
         assert(count > 0);
         instanceExtensions.resize(count);
@@ -342,13 +344,13 @@ void Context::createInstance()
                 instanceExtensions.begin());
     }
 
-    if(m_Config.enableDebugUtils)
+    if(m_Config.enableDebugUtils != 0)
     {
         m_Log->info("DebugUtils enabled");
         instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
-    if(m_Config.enableValidationLayers)
+    if(m_Config.enableValidationLayers != 0)
     {
         // instanceLayers.push_back("VK_LAYER_LUNARG_standard_validation");
         m_Log->info("ValidationLayers enabled");
@@ -397,8 +399,8 @@ void Context::createInstance()
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledLayerCount = static_cast<uint32_t>(instanceLayers.size());
     createInfo.ppEnabledLayerNames = instanceLayers.data();
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(
-            instanceExtensions.size());
+    createInfo.enabledExtensionCount =
+            static_cast<uint32_t>(instanceExtensions.size());
     createInfo.ppEnabledExtensionNames = instanceExtensions.data();
 
     VK_CHECK(vkCreateInstance(&createInfo, nullptr, &m_Instance));
@@ -416,11 +418,11 @@ VkPhysicalDevice Context::selectPhysicalDevice()
     vkEnumeratePhysicalDevices(
             m_Instance, &physicalDeviceCount, physicalDevices.data());
 
-    assert(physicalDevices.size() > 0);
+    assert(!physicalDevices.empty());
 
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
-    for(const auto gpu : physicalDevices)
+    for(const auto& gpu : physicalDevices)
     {
         VkPhysicalDeviceProperties gpuProperties;
         vkGetPhysicalDeviceProperties(gpu, &gpuProperties);
@@ -570,15 +572,15 @@ void Context::createRenderPass()
     attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    attachments[1]
-            .finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    attachments[1].finalLayout =
+            VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     std::array<VkAttachmentReference, 2> attachmentReferences = {};
     attachmentReferences[0].attachment = 0;
     attachmentReferences[0].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     attachmentReferences[1].attachment = 1;
-    attachmentReferences[1]
-            .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    attachmentReferences[1].layout =
+            VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     std::array<VkSubpassDescription, 1> subpassDescriptions = {};
     subpassDescriptions[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -591,21 +593,21 @@ void Context::createRenderPass()
     subpassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
     subpassDependencies[0].dstSubpass = 0;
     subpassDependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    subpassDependencies[0]
-            .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    subpassDependencies[0].dstStageMask =
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     subpassDependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-    subpassDependencies[0]
-            .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT
-                             | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    subpassDependencies[0].dstAccessMask =
+            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT
+            | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     subpassDependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
     subpassDependencies[1].srcSubpass = 0;
     subpassDependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-    subpassDependencies[1]
-            .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    subpassDependencies[1].srcStageMask =
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     subpassDependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    subpassDependencies[1]
-            .srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT
-                             | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    subpassDependencies[1].srcAccessMask =
+            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT
+            | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     subpassDependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
     subpassDependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
@@ -615,11 +617,11 @@ void Context::createRenderPass()
     renderpassInfo.flags = 0;
     renderpassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
     renderpassInfo.pAttachments = attachments.data();
-    renderpassInfo.subpassCount = static_cast<uint32_t>(
-            subpassDescriptions.size());
+    renderpassInfo.subpassCount =
+            static_cast<uint32_t>(subpassDescriptions.size());
     renderpassInfo.pSubpasses = subpassDescriptions.data();
-    renderpassInfo.dependencyCount = static_cast<uint32_t>(
-            subpassDependencies.size());
+    renderpassInfo.dependencyCount =
+            static_cast<uint32_t>(subpassDependencies.size());
     renderpassInfo.pDependencies = subpassDependencies.data();
 
     VK_CHECK(vkCreateRenderPass(
@@ -636,18 +638,18 @@ void Context::createRenderPass()
 void Context::createGraphicsPipeline()
 {
     const auto bindingDescription = model::VertexPNTC::getBindingDescription();
-    const auto
-            attributeDescription = model::VertexPNTC::getAttributeDescription();
+    const auto attributeDescription =
+            model::VertexPNTC::getAttributeDescription();
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
-    vertexInputInfo
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputInfo.sType =
+            VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.pNext = nullptr;
     vertexInputInfo.flags = 0;
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(
-            attributeDescription.size());
+    vertexInputInfo.vertexAttributeDescriptionCount =
+            static_cast<uint32_t>(attributeDescription.size());
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
 
     // --
@@ -691,8 +693,8 @@ void Context::createGraphicsPipeline()
     // --
 
     VkPipelineRasterizationStateCreateInfo rasterizer = {};
-    rasterizer
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizer.sType =
+            VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.pNext = nullptr;
     rasterizer.flags = 0;
     rasterizer.depthClampEnable = VK_FALSE;
@@ -709,8 +711,8 @@ void Context::createGraphicsPipeline()
     // --
 
     VkPipelineMultisampleStateCreateInfo multisampling = {};
-    multisampling
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampling.sType =
+            VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampling.pNext = nullptr;
     multisampling.flags = 0;
     multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
@@ -723,8 +725,8 @@ void Context::createGraphicsPipeline()
     // --
 
     VkPipelineDepthStencilStateCreateInfo depthInfo = {};
-    depthInfo
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthInfo.sType =
+            VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     depthInfo.pNext = nullptr;
     depthInfo.flags = 0;
     depthInfo.depthTestEnable = VK_TRUE;
@@ -752,8 +754,8 @@ void Context::createGraphicsPipeline()
     // --
 
     VkPipelineColorBlendStateCreateInfo colorBlending = {};
-    colorBlending
-            .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlending.sType =
+            VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.pNext = nullptr;
     colorBlending.flags = 0;
     colorBlending.logicOpEnable = VK_FALSE;
@@ -764,7 +766,7 @@ void Context::createGraphicsPipeline()
 
     // --
 
-    std::array<VkDynamicState, 2> dynStates {
+    std::array<VkDynamicState, 2> dynStates{
             VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState = {};
@@ -871,7 +873,7 @@ void Context::recordCommandBuffers(uint32_t nextImageIndex)
     beginInfo.pNext = nullptr;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-    std::array<VkClearValue, 2> clearValues {};
+    std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = {{0.1f, 0.1f, 0.1f, 1.0f}};
     clearValues[1].depthStencil = {1.0f, 0};
 
@@ -879,12 +881,12 @@ void Context::recordCommandBuffers(uint32_t nextImageIndex)
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassBeginInfo.pNext = nullptr;
     renderPassBeginInfo.renderPass = m_Renderpass;
-    renderPassBeginInfo.framebuffer = m_Swapchain->getFrameBuffer(
-            nextImageIndex);
+    renderPassBeginInfo.framebuffer =
+            m_Swapchain->getFrameBuffer(nextImageIndex);
     renderPassBeginInfo.renderArea.offset = {0, 0};
     renderPassBeginInfo.renderArea.extent = m_SwapchainExtent;
-    renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(
-            clearValues.size());
+    renderPassBeginInfo.clearValueCount =
+            static_cast<uint32_t>(clearValues.size());
     renderPassBeginInfo.pClearValues = clearValues.data();
 
     // Use opengl like viewport with y-axis pointing up
@@ -1053,15 +1055,15 @@ void Context::setupDescriptors()
         layoutBindings[0].binding = 0;
         layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         layoutBindings[0].descriptorCount = 1;
-        layoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT
-                                       | VK_SHADER_STAGE_FRAGMENT_BIT;
+        layoutBindings[0].stageFlags =
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         layoutBindings[0].pImmutableSamplers = nullptr;
 
         layoutBindings[1].binding = 1;
-        layoutBindings[1]
-                .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        layoutBindings[1]
-                .descriptorCount = 1; // TODO count as many as there is textures
+        layoutBindings[1].descriptorType =
+                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        layoutBindings[1].descriptorCount =
+                1; // TODO count as many as there is textures
         layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
         layoutBindings[1].pImmutableSamplers = nullptr;
 
@@ -1140,10 +1142,10 @@ void Context::setupDescriptors()
             descriptorWrite.dstSet = m_DescriptorSet[i];
             descriptorWrite.dstBinding = 1;
             descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorCount = static_cast<uint32_t>(
-                    imageInfos.size());
-            descriptorWrite
-                    .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptorWrite.descriptorCount =
+                    static_cast<uint32_t>(imageInfos.size());
+            descriptorWrite.descriptorType =
+                    VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             descriptorWrite.pImageInfo = imageInfos.data();
 
             descriptorWrites.push_back(descriptorWrite);
@@ -1156,8 +1158,8 @@ void Context::setupDescriptors()
             descriptorWrite.dstSet = m_DescriptorSet[i];
             descriptorWrite.dstBinding = 2;
             descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorCount = static_cast<uint32_t>(
-                    materialBufferInfos.size());
+            descriptorWrite.descriptorCount =
+                    static_cast<uint32_t>(materialBufferInfos.size());
             descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
             descriptorWrite.pBufferInfo = materialBufferInfos.data();
 

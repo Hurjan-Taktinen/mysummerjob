@@ -24,4 +24,3 @@ std::string deviceType(VkPhysicalDeviceType deviceType);
             throw std::runtime_error(ss.str());                                \
         }                                                                      \
     }
-

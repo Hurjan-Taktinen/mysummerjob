@@ -57,15 +57,15 @@ ImGuiSetup::ImGuiSetup(Device* device, VkRenderPass renderpass) :
     {
         VkDescriptorSetLayoutBinding setLayoutBinding = {};
         setLayoutBinding.binding = 0;
-        setLayoutBinding
-                .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        setLayoutBinding.descriptorType =
+                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         setLayoutBinding.descriptorCount = 1;
         setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
         setLayoutBinding.pImmutableSamplers = nullptr;
 
         VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {};
-        layoutCreateInfo
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutCreateInfo.sType =
+                VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         layoutCreateInfo.pNext = nullptr;
         layoutCreateInfo.flags = 0;
         layoutCreateInfo.bindingCount = 1;
@@ -80,8 +80,8 @@ ImGuiSetup::ImGuiSetup(Device* device, VkRenderPass renderpass) :
 
     {
         VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
-        descriptorSetAllocateInfo
-                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        descriptorSetAllocateInfo.sType =
+                VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         descriptorSetAllocateInfo.pNext = nullptr;
         descriptorSetAllocateInfo.descriptorPool = m_DescriptorPool;
         descriptorSetAllocateInfo.descriptorSetCount = 1;
@@ -99,8 +99,8 @@ ImGuiSetup::ImGuiSetup(Device* device, VkRenderPass renderpass) :
         writeDescriptorSet.dstBinding = 0;
         writeDescriptorSet.dstArrayElement = 0;
         writeDescriptorSet.descriptorCount = 1;
-        writeDescriptorSet
-                .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        writeDescriptorSet.descriptorType =
+                VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         writeDescriptorSet.pImageInfo = &(*m_FontTexture.descriptor);
         vkUpdateDescriptorSets(
                 m_Device->getLogicalDevice(),
@@ -133,10 +133,10 @@ ImGuiSetup::ImGuiSetup(Device* device, VkRenderPass renderpass) :
     }
 
     {
-        const auto bindingDescription = model::VertexImGui::
-                getBindingDescription();
-        const auto attributeDescription = model::VertexImGui::
-                getAttributeDescription();
+        const auto bindingDescription =
+                model::VertexImGui::getBindingDescription();
+        const auto attributeDescription =
+                model::VertexImGui::getAttributeDescription();
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.sType =
@@ -145,10 +145,10 @@ ImGuiSetup::ImGuiSetup(Device* device, VkRenderPass renderpass) :
         vertexInputInfo.flags = 0;
         vertexInputInfo.vertexBindingDescriptionCount = 1;
         vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(
-                attributeDescription.size());
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescription
-                                                               .data();
+        vertexInputInfo.vertexAttributeDescriptionCount =
+                static_cast<uint32_t>(attributeDescription.size());
+        vertexInputInfo.pVertexAttributeDescriptions =
+                attributeDescription.data();
 
         // --
 
@@ -163,8 +163,8 @@ ImGuiSetup::ImGuiSetup(Device* device, VkRenderPass renderpass) :
         // --
 
         VkPipelineViewportStateCreateInfo viewportState = {};
-        viewportState
-                .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewportState.sType =
+                VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         viewportState.pNext = nullptr;
         viewportState.flags = 0;
         viewportState.viewportCount = 1;
@@ -226,11 +226,11 @@ ImGuiSetup::ImGuiSetup(Device* device, VkRenderPass renderpass) :
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
         colorBlendAttachment.blendEnable = VK_TRUE;
         colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-        colorBlendAttachment
-                .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.dstColorBlendFactor =
+                VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
         colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-        colorBlendAttachment
-                .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.srcAlphaBlendFactor =
+                VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
         colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
         colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
         colorBlendAttachment.colorWriteMask = 0xF;
@@ -250,16 +250,16 @@ ImGuiSetup::ImGuiSetup(Device* device, VkRenderPass renderpass) :
 
         // --
 
-        std::array<VkDynamicState, 2> dynStates {
+        std::array<VkDynamicState, 2> dynStates{
                 VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
         VkPipelineDynamicStateCreateInfo dynamicState = {};
-        dynamicState
-                .sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        dynamicState.sType =
+                VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamicState.pNext = nullptr;
         dynamicState.flags = 0;
-        dynamicState.dynamicStateCount = static_cast<uint32_t>(
-                dynStates.size());
+        dynamicState.dynamicStateCount =
+                static_cast<uint32_t>(dynStates.size());
         dynamicState.pDynamicStates = dynStates.data();
 
         // --
@@ -349,34 +349,34 @@ ImGuiSetup::~ImGuiSetup()
 void ImGuiSetup::setDarkTheme()
 {
     auto& colors = ImGui::GetStyle().Colors;
-    colors[ImGuiCol_WindowBg] = ImVec4 {0.1f, 0.105f, 0.11f, 1.0f};
+    colors[ImGuiCol_WindowBg] = ImVec4{0.1f, 0.105f, 0.11f, 1.0f};
 
     // Headers
-    colors[ImGuiCol_Header] = ImVec4 {0.2f, 0.205f, 0.21f, 1.0f};
-    colors[ImGuiCol_HeaderHovered] = ImVec4 {0.3f, 0.305f, 0.31f, 1.0f};
-    colors[ImGuiCol_HeaderActive] = ImVec4 {0.15f, 0.1505f, 0.151f, 1.0f};
+    colors[ImGuiCol_Header] = ImVec4{0.2f, 0.205f, 0.21f, 1.0f};
+    colors[ImGuiCol_HeaderHovered] = ImVec4{0.3f, 0.305f, 0.31f, 1.0f};
+    colors[ImGuiCol_HeaderActive] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
 
     // Buttons
-    colors[ImGuiCol_Button] = ImVec4 {0.2f, 0.205f, 0.21f, 1.0f};
-    colors[ImGuiCol_ButtonHovered] = ImVec4 {0.3f, 0.305f, 0.31f, 1.0f};
-    colors[ImGuiCol_ButtonActive] = ImVec4 {0.15f, 0.1505f, 0.151f, 1.0f};
+    colors[ImGuiCol_Button] = ImVec4{0.2f, 0.205f, 0.21f, 1.0f};
+    colors[ImGuiCol_ButtonHovered] = ImVec4{0.3f, 0.305f, 0.31f, 1.0f};
+    colors[ImGuiCol_ButtonActive] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
 
     // Frame BG
-    colors[ImGuiCol_FrameBg] = ImVec4 {0.2f, 0.205f, 0.21f, 1.0f};
-    colors[ImGuiCol_FrameBgHovered] = ImVec4 {0.3f, 0.305f, 0.31f, 1.0f};
-    colors[ImGuiCol_FrameBgActive] = ImVec4 {0.15f, 0.1505f, 0.151f, 1.0f};
+    colors[ImGuiCol_FrameBg] = ImVec4{0.2f, 0.205f, 0.21f, 1.0f};
+    colors[ImGuiCol_FrameBgHovered] = ImVec4{0.3f, 0.305f, 0.31f, 1.0f};
+    colors[ImGuiCol_FrameBgActive] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
 
     // Tabs
-    colors[ImGuiCol_Tab] = ImVec4 {0.15f, 0.1505f, 0.151f, 1.0f};
-    colors[ImGuiCol_TabHovered] = ImVec4 {0.38f, 0.3805f, 0.381f, 1.0f};
-    colors[ImGuiCol_TabActive] = ImVec4 {0.28f, 0.2805f, 0.281f, 1.0f};
-    colors[ImGuiCol_TabUnfocused] = ImVec4 {0.15f, 0.1505f, 0.151f, 1.0f};
-    colors[ImGuiCol_TabUnfocusedActive] = ImVec4 {0.2f, 0.205f, 0.21f, 1.0f};
+    colors[ImGuiCol_Tab] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
+    colors[ImGuiCol_TabHovered] = ImVec4{0.38f, 0.3805f, 0.381f, 1.0f};
+    colors[ImGuiCol_TabActive] = ImVec4{0.28f, 0.2805f, 0.281f, 1.0f};
+    colors[ImGuiCol_TabUnfocused] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
+    colors[ImGuiCol_TabUnfocusedActive] = ImVec4{0.2f, 0.205f, 0.21f, 1.0f};
 
     // Title
-    colors[ImGuiCol_TitleBg] = ImVec4 {0.15f, 0.1505f, 0.151f, 1.0f};
-    colors[ImGuiCol_TitleBgActive] = ImVec4 {0.15f, 0.1505f, 0.151f, 1.0f};
-    colors[ImGuiCol_TitleBgCollapsed] = ImVec4 {0.15f, 0.1505f, 0.151f, 1.0f};
+    colors[ImGuiCol_TitleBg] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
+    colors[ImGuiCol_TitleBgActive] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
+    colors[ImGuiCol_TitleBgCollapsed] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
 }
 
 void ImGuiSetup::update()
@@ -385,10 +385,10 @@ void ImGuiSetup::update()
 
     if(drawData)
     {
-        VkDeviceSize vertexBufferSize = drawData->TotalVtxCount
-                                        * sizeof(ImDrawVert);
-        VkDeviceSize indexBufferSize = drawData->TotalIdxCount
-                                       * sizeof(ImDrawIdx);
+        VkDeviceSize vertexBufferSize =
+                drawData->TotalVtxCount * sizeof(ImDrawVert);
+        VkDeviceSize indexBufferSize =
+                drawData->TotalIdxCount * sizeof(ImDrawIdx);
 
         // assert(vertexBufferSize > 0 && indexBufferSize > 0);
 
@@ -458,8 +458,8 @@ void ImGuiSetup::update()
 
             vertexDst = static_cast<ImDrawVert*>(vertexDst)
                         + cmdList->VtxBuffer.Size;
-            indexDst = static_cast<ImDrawIdx*>(indexDst)
-                       + cmdList->IdxBuffer.Size;
+            indexDst =
+                    static_cast<ImDrawIdx*>(indexDst) + cmdList->IdxBuffer.Size;
         }
 
         vmaUnmapMemory(m_Device->getAllocator(), m_VertexMemory);
@@ -514,10 +514,10 @@ void ImGuiSetup::draw(VkCommandBuffer cmdBuf)
             VkRect2D scissorRect;
             scissorRect.offset.x = std::max((int32_t)(pcmd->ClipRect.x), 0);
             scissorRect.offset.y = std::max((int32_t)(pcmd->ClipRect.y), 0);
-            scissorRect.extent.width = (uint32_t)(
-                    pcmd->ClipRect.z - pcmd->ClipRect.x);
-            scissorRect.extent.height = (uint32_t)(
-                    pcmd->ClipRect.w - pcmd->ClipRect.y);
+            scissorRect.extent.width =
+                    (uint32_t)(pcmd->ClipRect.z - pcmd->ClipRect.x);
+            scissorRect.extent.height =
+                    (uint32_t)(pcmd->ClipRect.w - pcmd->ClipRect.y);
             vkCmdSetScissor(cmdBuf, 0, 1, &scissorRect);
             vkCmdDrawIndexed(
                     cmdBuf, pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);

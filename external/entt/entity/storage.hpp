@@ -1,7 +1,6 @@
 #ifndef ENTT_ENTITY_STORAGE_HPP
 #define ENTT_ENTITY_STORAGE_HPP
 
-
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
@@ -17,9 +16,8 @@
 #include "fwd.hpp"
 #include "sparse_set.hpp"
 
-
-namespace entt {
-
+namespace entt
+{
 
 /**
  * @brief Basic storage implementation.
@@ -49,112 +47,143 @@ namespace entt {
  * @tparam Type Type of objects assigned to the entities.
  */
 template<typename Entity, typename Type, typename = void>
-class basic_storage: public basic_sparse_set<Entity> {
-    static_assert(std::is_move_constructible_v<Type> && std::is_move_assignable_v<Type>, "The managed type must be at least move constructible and assignable");
+class basic_storage : public basic_sparse_set<Entity>
+{
+    static_assert(
+            std::is_move_constructible_v<
+                    Type> && std::is_move_assignable_v<Type>,
+            "The managed type must be at least move constructible and "
+            "assignable");
 
     using underlying_type = basic_sparse_set<Entity>;
     using traits_type = entt_traits<Entity>;
 
     template<typename Value>
-    class storage_iterator final {
+    class storage_iterator final
+    {
         friend class basic_storage<Entity, Type>;
 
         using instance_type = constness_as_t<std::vector<Type>, Value>;
         using index_type = typename traits_type::difference_type;
 
-        storage_iterator(instance_type &ref, const index_type idx) ENTT_NOEXCEPT
-            : instances{&ref}, index{idx}
-        {}
+        storage_iterator(instance_type& ref, const index_type idx)
+                ENTT_NOEXCEPT :
+            instances{&ref},
+            index{idx}
+        {
+        }
 
     public:
         using difference_type = index_type;
         using value_type = Value;
-        using pointer = value_type *;
-        using reference = value_type &;
+        using pointer = value_type*;
+        using reference = value_type&;
         using iterator_category = std::random_access_iterator_tag;
 
         storage_iterator() ENTT_NOEXCEPT = default;
 
-        storage_iterator & operator++() ENTT_NOEXCEPT {
-            return --index, *this;
-        }
+        storage_iterator& operator++() ENTT_NOEXCEPT { return --index, *this; }
 
-        storage_iterator operator++(int) ENTT_NOEXCEPT {
+        storage_iterator operator++(int) ENTT_NOEXCEPT
+        {
             storage_iterator orig = *this;
             return ++(*this), orig;
         }
 
-        storage_iterator & operator--() ENTT_NOEXCEPT {
-            return ++index, *this;
-        }
+        storage_iterator& operator--() ENTT_NOEXCEPT { return ++index, *this; }
 
-        storage_iterator operator--(int) ENTT_NOEXCEPT {
+        storage_iterator operator--(int) ENTT_NOEXCEPT
+        {
             storage_iterator orig = *this;
             return operator--(), orig;
         }
 
-        storage_iterator & operator+=(const difference_type value) ENTT_NOEXCEPT {
+        storage_iterator& operator+=(const difference_type value) ENTT_NOEXCEPT
+        {
             index -= value;
             return *this;
         }
 
-        storage_iterator operator+(const difference_type value) const ENTT_NOEXCEPT {
+        storage_iterator operator+(const difference_type value) const
+                ENTT_NOEXCEPT
+        {
             storage_iterator copy = *this;
             return (copy += value);
         }
 
-        storage_iterator & operator-=(const difference_type value) ENTT_NOEXCEPT {
+        storage_iterator& operator-=(const difference_type value) ENTT_NOEXCEPT
+        {
             return (*this += -value);
         }
 
-        storage_iterator operator-(const difference_type value) const ENTT_NOEXCEPT {
+        storage_iterator operator-(const difference_type value) const
+                ENTT_NOEXCEPT
+        {
             return (*this + -value);
         }
 
-        difference_type operator-(const storage_iterator &other) const ENTT_NOEXCEPT {
+        difference_type operator-(const storage_iterator& other) const
+                ENTT_NOEXCEPT
+        {
             return other.index - index;
         }
 
-        [[nodiscard]] reference operator[](const difference_type value) const ENTT_NOEXCEPT {
-            const auto pos = size_type(index-value-1);
+        [[nodiscard]] reference operator[](const difference_type value) const
+                ENTT_NOEXCEPT
+        {
+            const auto pos = size_type(index - value - 1);
             return (*instances)[pos];
         }
 
-        [[nodiscard]] bool operator==(const storage_iterator &other) const ENTT_NOEXCEPT {
+        [[nodiscard]] bool operator==(const storage_iterator& other) const
+                ENTT_NOEXCEPT
+        {
             return other.index == index;
         }
 
-        [[nodiscard]] bool operator!=(const storage_iterator &other) const ENTT_NOEXCEPT {
+        [[nodiscard]] bool operator!=(const storage_iterator& other) const
+                ENTT_NOEXCEPT
+        {
             return !(*this == other);
         }
 
-        [[nodiscard]] bool operator<(const storage_iterator &other) const ENTT_NOEXCEPT {
+        [[nodiscard]] bool operator<(const storage_iterator& other) const
+                ENTT_NOEXCEPT
+        {
             return index > other.index;
         }
 
-        [[nodiscard]] bool operator>(const storage_iterator &other) const ENTT_NOEXCEPT {
+        [[nodiscard]] bool operator>(const storage_iterator& other) const
+                ENTT_NOEXCEPT
+        {
             return index < other.index;
         }
 
-        [[nodiscard]] bool operator<=(const storage_iterator &other) const ENTT_NOEXCEPT {
+        [[nodiscard]] bool operator<=(const storage_iterator& other) const
+                ENTT_NOEXCEPT
+        {
             return !(*this > other);
         }
 
-        [[nodiscard]] bool operator>=(const storage_iterator &other) const ENTT_NOEXCEPT {
+        [[nodiscard]] bool operator>=(const storage_iterator& other) const
+                ENTT_NOEXCEPT
+        {
             return !(*this < other);
         }
 
-        [[nodiscard]] pointer operator->() const ENTT_NOEXCEPT {
-            const auto pos = size_type(index-1u);
+        [[nodiscard]] pointer operator->() const ENTT_NOEXCEPT
+        {
+            const auto pos = size_type(index - 1u);
             return &(*instances)[pos];
         }
 
-        [[nodiscard]] reference operator*() const ENTT_NOEXCEPT {
+        [[nodiscard]] reference operator*() const ENTT_NOEXCEPT
+        {
             return *operator->();
         }
 
     private:
-        instance_type *instances;
+        instance_type* instances;
         index_type index;
     };
 
@@ -164,7 +193,8 @@ protected:
      * @param lhs A valid position of an entity within storage.
      * @param rhs A valid position of an entity within storage.
      */
-    void swap_at(const std::size_t lhs, const std::size_t rhs) {
+    void swap_at(const std::size_t lhs, const std::size_t rhs)
+    {
         std::swap(instances[lhs], instances[rhs]);
     }
 
@@ -172,7 +202,8 @@ protected:
      * @copybrief basic_sparse_set::swap_and_pop
      * @param pos A valid position of an entity within storage.
      */
-    void swap_and_pop(const std::size_t pos, void *) {
+    void swap_and_pop(const std::size_t pos, void*)
+    {
         auto other = std::move(instances.back());
         instances[pos] = std::move(other);
         instances.pop_back();
@@ -190,9 +221,9 @@ public:
     /*! @brief Constant random access iterator type. */
     using const_iterator = storage_iterator<const Type>;
     /*! @brief Reverse iterator type. */
-    using reverse_iterator = Type *;
+    using reverse_iterator = Type*;
     /*! @brief Constant reverse iterator type. */
-    using const_reverse_iterator = const Type *;
+    using const_reverse_iterator = const Type*;
 
     /**
      * @brief Increases the capacity of a storage.
@@ -202,13 +233,15 @@ public:
      *
      * @param cap Desired capacity.
      */
-    void reserve(const size_type cap) {
+    void reserve(const size_type cap)
+    {
         underlying_type::reserve(cap);
         instances.reserve(cap);
     }
 
     /*! @brief Requests the removal of unused capacity. */
-    void shrink_to_fit() {
+    void shrink_to_fit()
+    {
         underlying_type::shrink_to_fit();
         instances.shrink_to_fit();
     }
@@ -225,13 +258,15 @@ public:
      *
      * @return A pointer to the array of objects.
      */
-    [[nodiscard]] const value_type * raw() const ENTT_NOEXCEPT {
+    [[nodiscard]] const value_type* raw() const ENTT_NOEXCEPT
+    {
         return instances.data();
     }
 
     /*! @copydoc raw */
-    [[nodiscard]] value_type * raw() ENTT_NOEXCEPT {
-        return const_cast<value_type *>(std::as_const(*this).raw());
+    [[nodiscard]] value_type* raw() ENTT_NOEXCEPT
+    {
+        return const_cast<value_type*>(std::as_const(*this).raw());
     }
 
     /**
@@ -242,19 +277,24 @@ public:
      *
      * @return An iterator to the first instance of the internal array.
      */
-    [[nodiscard]] const_iterator cbegin() const ENTT_NOEXCEPT {
-        const typename traits_type::difference_type pos = underlying_type::size();
+    [[nodiscard]] const_iterator cbegin() const ENTT_NOEXCEPT
+    {
+        const typename traits_type::difference_type pos =
+                underlying_type::size();
         return const_iterator{instances, pos};
     }
 
     /*! @copydoc cbegin */
-    [[nodiscard]] const_iterator begin() const ENTT_NOEXCEPT {
+    [[nodiscard]] const_iterator begin() const ENTT_NOEXCEPT
+    {
         return cbegin();
     }
 
     /*! @copydoc begin */
-    [[nodiscard]] iterator begin() ENTT_NOEXCEPT {
-        const typename traits_type::difference_type pos = underlying_type::size();
+    [[nodiscard]] iterator begin() ENTT_NOEXCEPT
+    {
+        const typename traits_type::difference_type pos =
+                underlying_type::size();
         return iterator{instances, pos};
     }
 
@@ -268,17 +308,17 @@ public:
      * @return An iterator to the element following the last instance of the
      * internal array.
      */
-    [[nodiscard]] const_iterator cend() const ENTT_NOEXCEPT {
+    [[nodiscard]] const_iterator cend() const ENTT_NOEXCEPT
+    {
         return const_iterator{instances, {}};
     }
 
     /*! @copydoc cend */
-    [[nodiscard]] const_iterator end() const ENTT_NOEXCEPT {
-        return cend();
-    }
+    [[nodiscard]] const_iterator end() const ENTT_NOEXCEPT { return cend(); }
 
     /*! @copydoc end */
-    [[nodiscard]] iterator end() ENTT_NOEXCEPT {
+    [[nodiscard]] iterator end() ENTT_NOEXCEPT
+    {
         return iterator{instances, {}};
     }
 
@@ -291,17 +331,20 @@ public:
      *
      * @return An iterator to the first instance of the reversed internal array.
      */
-    [[nodiscard]] const_reverse_iterator crbegin() const ENTT_NOEXCEPT {
+    [[nodiscard]] const_reverse_iterator crbegin() const ENTT_NOEXCEPT
+    {
         return instances.data();
     }
 
     /*! @copydoc crbegin */
-    [[nodiscard]] const_reverse_iterator rbegin() const ENTT_NOEXCEPT {
+    [[nodiscard]] const_reverse_iterator rbegin() const ENTT_NOEXCEPT
+    {
         return crbegin();
     }
 
     /*! @copydoc rbegin */
-    [[nodiscard]] reverse_iterator rbegin() ENTT_NOEXCEPT {
+    [[nodiscard]] reverse_iterator rbegin() ENTT_NOEXCEPT
+    {
         return instances.data();
     }
 
@@ -315,17 +358,20 @@ public:
      * @return An iterator to the element following the last instance of the
      * reversed internal array.
      */
-    [[nodiscard]] const_reverse_iterator crend() const ENTT_NOEXCEPT {
+    [[nodiscard]] const_reverse_iterator crend() const ENTT_NOEXCEPT
+    {
         return crbegin() + instances.size();
     }
 
     /*! @copydoc crend */
-    [[nodiscard]] const_reverse_iterator rend() const ENTT_NOEXCEPT {
+    [[nodiscard]] const_reverse_iterator rend() const ENTT_NOEXCEPT
+    {
         return crend();
     }
 
     /*! @copydoc rend */
-    [[nodiscard]] reverse_iterator rend() ENTT_NOEXCEPT {
+    [[nodiscard]] reverse_iterator rend() ENTT_NOEXCEPT
+    {
         return rbegin() + instances.size();
     }
 
@@ -339,13 +385,15 @@ public:
      * @param entt A valid entity identifier.
      * @return The object assigned to the entity.
      */
-    [[nodiscard]] const value_type & get(const entity_type entt) const {
+    [[nodiscard]] const value_type& get(const entity_type entt) const
+    {
         return instances[underlying_type::index(entt)];
     }
 
     /*! @copydoc get */
-    [[nodiscard]] value_type & get(const entity_type entt) {
-        return const_cast<value_type &>(std::as_const(*this).get(entt));
+    [[nodiscard]] value_type& get(const entity_type entt)
+    {
+        return const_cast<value_type&>(std::as_const(*this).get(entt));
     }
 
     /**
@@ -365,10 +413,14 @@ public:
      * @return A reference to the newly created object.
      */
     template<typename... Args>
-    value_type & emplace(const entity_type entt, Args &&... args) {
-        if constexpr(std::is_aggregate_v<value_type>) {
+    value_type& emplace(const entity_type entt, Args&&... args)
+    {
+        if constexpr(std::is_aggregate_v<value_type>)
+        {
             instances.push_back(Type{std::forward<Args>(args)...});
-        } else {
+        }
+        else
+        {
             instances.emplace_back(std::forward<Args>(args)...);
         }
 
@@ -385,8 +437,9 @@ public:
      * @return A reference to the updated instance.
      */
     template<typename... Func>
-    decltype(auto) patch(const entity_type entity, Func &&... func) {
-        auto &&instance = instances[this->index(entity)];
+    decltype(auto) patch(const entity_type entity, Func&&... func)
+    {
+        auto&& instance = instances[this->index(entity)];
         (std::forward<Func>(func)(instance), ...);
         return instance;
     }
@@ -405,7 +458,8 @@ public:
      * @param value An instance of the object to construct.
      */
     template<typename It>
-    void insert(It first, It last, const value_type &value = {}) {
+    void insert(It first, It last, const value_type& value = {})
+    {
         instances.insert(instances.end(), std::distance(first, last), value);
         // entities go after components in case constructors throw
         underlying_type::insert(first, last);
@@ -425,7 +479,8 @@ public:
      * @param to An iterator past the last element of the range of objects.
      */
     template<typename EIt, typename CIt>
-    void insert(EIt first, EIt last, CIt from, CIt to) {
+    void insert(EIt first, EIt last, CIt from, CIt to)
+    {
         instances.insert(instances.end(), from, to);
         // entities go after components in case constructors throw
         underlying_type::insert(first, last);
@@ -467,13 +522,37 @@ public:
      * @param args Arguments to forward to the sort function object, if any.
      */
     template<typename Compare, typename Sort = std_sort, typename... Args>
-    void sort_n(const size_type count, Compare compare, Sort algo = Sort{}, Args &&... args) {
-        if constexpr(std::is_invocable_v<Compare, const value_type &, const value_type &>) {
-            underlying_type::sort_n(count, [this, compare = std::move(compare)](const auto lhs, const auto rhs) {
-                return compare(std::as_const(instances[underlying_type::index(lhs)]), std::as_const(instances[underlying_type::index(rhs)]));
-            }, std::move(algo), std::forward<Args>(args)...);
-        } else {
-            underlying_type::sort_n(count, std::move(compare), std::move(algo), std::forward<Args>(args)...);
+    void sort_n(
+            const size_type count,
+            Compare compare,
+            Sort algo = Sort{},
+            Args&&... args)
+    {
+        if constexpr(std::is_invocable_v<
+                             Compare,
+                             const value_type&,
+                             const value_type&>)
+        {
+            underlying_type::sort_n(
+                    count,
+                    [this, compare = std::move(compare)](
+                            const auto lhs, const auto rhs) {
+                        return compare(
+                                std::as_const(
+                                        instances[underlying_type::index(lhs)]),
+                                std::as_const(
+                                        instances[underlying_type::index(rhs)]));
+                    },
+                    std::move(algo),
+                    std::forward<Args>(args)...);
+        }
+        else
+        {
+            underlying_type::sort_n(
+                    count,
+                    std::move(compare),
+                    std::move(algo),
+                    std::forward<Args>(args)...);
         }
     }
 
@@ -490,18 +569,23 @@ public:
      * @param args Arguments to forward to the sort function object, if any.
      */
     template<typename Compare, typename Sort = std_sort, typename... Args>
-    void sort(Compare compare, Sort algo = Sort{}, Args &&... args) {
-        sort_n(this->size(), std::move(compare), std::move(algo), std::forward<Args>(args)...);
+    void sort(Compare compare, Sort algo = Sort{}, Args&&... args)
+    {
+        sort_n(this->size(),
+               std::move(compare),
+               std::move(algo),
+               std::forward<Args>(args)...);
     }
 
 private:
     std::vector<value_type> instances;
 };
 
-
 /*! @copydoc basic_storage */
 template<typename Entity, typename Type>
-class basic_storage<Entity, Type, std::enable_if_t<is_empty_v<Type>>>: public basic_sparse_set<Entity> {
+class basic_storage<Entity, Type, std::enable_if_t<is_empty_v<Type>>> :
+    public basic_sparse_set<Entity>
+{
     using underlying_type = basic_sparse_set<Entity>;
 
 public:
@@ -521,7 +605,8 @@ public:
      *
      * @param entt A valid entity identifier.
      */
-    void get([[maybe_unused]] const entity_type entt) const {
+    void get([[maybe_unused]] const entity_type entt) const
+    {
         ENTT_ASSERT(this->contains(entt));
     }
 
@@ -537,19 +622,21 @@ public:
      * @param args Parameters to use to construct an object for the entity.
      */
     template<typename... Args>
-    void emplace(const entity_type entt, Args &&... args) {
+    void emplace(const entity_type entt, Args&&... args)
+    {
         [[maybe_unused]] value_type instance{std::forward<Args>(args)...};
         underlying_type::emplace(entt);
     }
 
     /**
-    * @brief Updates the instance assigned to a given entity in-place.
-    * @tparam Func Types of the function objects to invoke.
-    * @param entity A valid entity identifier.
-    * @param func Valid function objects.
-    */
+     * @brief Updates the instance assigned to a given entity in-place.
+     * @tparam Func Types of the function objects to invoke.
+     * @param entity A valid entity identifier.
+     * @param func Valid function objects.
+     */
     template<typename... Func>
-    void patch([[maybe_unused]] const entity_type entity, Func &&... func) {
+    void patch([[maybe_unused]] const entity_type entity, Func&&... func)
+    {
         ENTT_ASSERT(this->contains(entity));
         (std::forward<Func>(func)(), ...);
     }
@@ -566,19 +653,24 @@ public:
      * @param last An iterator past the last element of the range of entities.
      */
     template<typename It>
-    void insert(It first, It last, const value_type & = {}) {
+    void insert(It first, It last, const value_type& = {})
+    {
         underlying_type::insert(first, last);
     }
 };
-
 
 /**
  * @brief Mixin type to use to wrap basic storage classes.
  * @tparam Type The type of the underlying storage.
  */
 template<typename Type>
-struct storage_adapter_mixin: Type {
-    static_assert(std::is_same_v<typename Type::value_type, std::decay_t<typename Type::value_type>>, "Invalid object type");
+struct storage_adapter_mixin : Type
+{
+    static_assert(
+            std::is_same_v<
+                    typename Type::value_type,
+                    std::decay_t<typename Type::value_type>>,
+            "Invalid object type");
 
     /*! @brief Type of the objects assigned to entities. */
     using value_type = typename Type::value_type;
@@ -593,7 +685,11 @@ struct storage_adapter_mixin: Type {
      * @return A reference to the newly created object.
      */
     template<typename... Args>
-    decltype(auto) emplace(basic_registry<entity_type> &, const entity_type entity, Args &&... args) {
+    decltype(auto) emplace(
+            basic_registry<entity_type>&,
+            const entity_type entity,
+            Args&&... args)
+    {
         return Type::emplace(entity, std::forward<Args>(args)...);
     }
 
@@ -608,7 +704,8 @@ struct storage_adapter_mixin: Type {
      * entities.
      */
     template<typename It, typename... Args>
-    void insert(basic_registry<entity_type> &, It first, It last, Args &&... args) {
+    void insert(basic_registry<entity_type>&, It first, It last, Args&&... args)
+    {
         Type::insert(first, last, std::forward<Args>(args)...);
     }
 
@@ -620,27 +717,35 @@ struct storage_adapter_mixin: Type {
      * @return A reference to the patched instance.
      */
     template<typename... Func>
-    decltype(auto) patch(basic_registry<entity_type> &, const entity_type entity, Func &&... func) {
+    decltype(auto) patch(
+            basic_registry<entity_type>&,
+            const entity_type entity,
+            Func&&... func)
+    {
         return Type::patch(entity, std::forward<Func>(func)...);
     }
 };
-
 
 /**
  * @brief Mixin type to use to add signal support to storage types.
  * @tparam Type The type of the underlying storage.
  */
 template<typename Type>
-class sigh_storage_mixin final: public Type {
+class sigh_storage_mixin final : public Type
+{
     /**
      * @copybrief basic_sparse_set::swap_and_pop
      * @param pos A valid position of an entity within storage.
      * @param ud Optional user data that are forwarded as-is to derived classes.
      */
-    void swap_and_pop(const std::size_t pos, void *ud) final {
+    void swap_and_pop(const std::size_t pos, void* ud) final
+    {
         ENTT_ASSERT(ud != nullptr);
-        const auto entity = basic_sparse_set<typename Type::entity_type>::operator[](pos);
-        destruction.publish(*static_cast<basic_registry<typename Type::entity_type> *>(ud), entity);
+        const auto entity =
+                basic_sparse_set<typename Type::entity_type>::operator[](pos);
+        destruction.publish(
+                *static_cast<basic_registry<typename Type::entity_type>*>(ud),
+                entity);
         // the position may have changed due to the actions of a listener
         Type::swap_and_pop(this->index(entity), ud);
     }
@@ -669,7 +774,8 @@ public:
      *
      * @return A temporary sink object.
      */
-    [[nodiscard]] auto on_construct() ENTT_NOEXCEPT {
+    [[nodiscard]] auto on_construct() ENTT_NOEXCEPT
+    {
         return sink{construction};
     }
 
@@ -690,9 +796,7 @@ public:
      *
      * @return A temporary sink object.
      */
-    [[nodiscard]] auto on_update() ENTT_NOEXCEPT {
-        return sink{update};
-    }
+    [[nodiscard]] auto on_update() ENTT_NOEXCEPT { return sink{update}; }
 
     /**
      * @brief Returns a sink object.
@@ -712,9 +816,7 @@ public:
      *
      * @return A temporary sink object.
      */
-    [[nodiscard]] auto on_destroy() ENTT_NOEXCEPT {
-        return sink{destruction};
-    }
+    [[nodiscard]] auto on_destroy() ENTT_NOEXCEPT { return sink{destruction}; }
 
     /**
      * @brief Assigns entities to a storage.
@@ -725,7 +827,11 @@ public:
      * @return A reference to the newly created object.
      */
     template<typename... Args>
-    decltype(auto) emplace(basic_registry<entity_type> &owner, const entity_type entity, Args &&... args) {
+    decltype(auto) emplace(
+            basic_registry<entity_type>& owner,
+            const entity_type entity,
+            Args&&... args)
+    {
         Type::emplace(entity, std::forward<Args>(args)...);
         construction.publish(owner, entity);
         return this->get(entity);
@@ -743,11 +849,18 @@ public:
      * entities.
      */
     template<typename It, typename... Args>
-    void insert(basic_registry<entity_type> &owner, It first, It last, Args &&... args) {
+    void insert(
+            basic_registry<entity_type>& owner,
+            It first,
+            It last,
+            Args&&... args)
+    {
         Type::insert(first, last, std::forward<Args>(args)...);
 
-        if(!construction.empty()) {
-            for(; first != last; ++first) {
+        if(!construction.empty())
+        {
+            for(; first != last; ++first)
+            {
                 construction.publish(owner, *first);
             }
         }
@@ -762,18 +875,21 @@ public:
      * @return A reference to the patched instance.
      */
     template<typename... Func>
-    decltype(auto) patch(basic_registry<entity_type> &owner, const entity_type entity, Func &&... func) {
+    decltype(auto) patch(
+            basic_registry<entity_type>& owner,
+            const entity_type entity,
+            Func&&... func)
+    {
         Type::patch(entity, std::forward<Func>(func)...);
         update.publish(owner, entity);
         return this->get(entity);
     }
 
 private:
-    sigh<void(basic_registry<entity_type> &, const entity_type)> construction{};
-    sigh<void(basic_registry<entity_type> &, const entity_type)> destruction{};
-    sigh<void(basic_registry<entity_type> &, const entity_type)> update{};
+    sigh<void(basic_registry<entity_type>&, const entity_type)> construction{};
+    sigh<void(basic_registry<entity_type>&, const entity_type)> destruction{};
+    sigh<void(basic_registry<entity_type>&, const entity_type)> update{};
 };
-
 
 /**
  * @brief Defines the component-to-storage conversion.
@@ -789,11 +905,11 @@ private:
  * @tparam Type Type of objects assigned to the entities.
  */
 template<typename Entity, typename Type, typename = void>
-struct storage_traits {
+struct storage_traits
+{
     /*! @brief Resulting type after component-to-storage conversion. */
     using storage_type = sigh_storage_mixin<basic_storage<Entity, Type>>;
 };
-
 
 /**
  * @brief Gets the element assigned to an entity from a storage, if any.
@@ -803,18 +919,28 @@ struct storage_traits {
  * @return A possibly empty tuple containing the requested element.
  */
 template<typename Type>
-[[nodiscard]] auto get_as_tuple([[maybe_unused]] Type &container, [[maybe_unused]] const typename Type::entity_type entity) {
-    static_assert(std::is_same_v<std::remove_const_t<Type>, typename storage_traits<typename Type::entity_type, typename Type::value_type>::storage_type>, "Invalid storage");
+[[nodiscard]] auto get_as_tuple(
+        [[maybe_unused]] Type& container,
+        [[maybe_unused]] const typename Type::entity_type entity)
+{
+    static_assert(
+            std::is_same_v<
+                    std::remove_const_t<Type>,
+                    typename storage_traits<
+                            typename Type::entity_type,
+                            typename Type::value_type>::storage_type>,
+            "Invalid storage");
 
-    if constexpr(std::is_void_v<decltype(container.get({}))>) {
+    if constexpr(std::is_void_v<decltype(container.get({}))>)
+    {
         return std::make_tuple();
-    } else {
+    }
+    else
+    {
         return std::forward_as_tuple(container.get(entity));
     }
 }
 
-
-}
-
+} // namespace entt
 
 #endif

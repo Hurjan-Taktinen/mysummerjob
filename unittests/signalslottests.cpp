@@ -20,17 +20,17 @@ struct foo_struct
 TEST_CASE("delegates")
 {
     {
-        entt::delegate<int(int)> delegate {};
+        entt::delegate<int(int)> delegate{};
         delegate.connect<&f>();
     }
     {
-        entt::delegate<int(int)> delegate {};
+        entt::delegate<int(int)> delegate{};
 
         foo_struct foo;
         delegate.connect<&foo_struct::f>(foo);
     }
     {
-        entt::delegate<int(int)> func {entt::connect_arg<&f>};
+        entt::delegate<int(int)> func{entt::connect_arg<&f>};
         auto ret = func(42);
         REQUIRE(42 == ret);
     }
@@ -62,7 +62,7 @@ TEST_CASE("Signals")
 {
     {
         entt::sigh<void(int, char)> signal;
-        entt::sink sink {signal};
+        entt::sink sink{signal};
 
         Listener instance;
 
@@ -75,14 +75,14 @@ TEST_CASE("Signals")
 
     {
         entt::sigh<int()> signal;
-        entt::sink sink {signal};
+        entt::sink sink{signal};
 
         Listener instance;
 
         sink.connect<&fooo>();
         sink.connect<&Listener::barr>(instance);
 
-        std::vector<int> vec {};
+        std::vector<int> vec{};
         signal.collect([&vec](int value) { vec.push_back(value); });
 
         REQUIRE(1 == vec[0]);
@@ -120,10 +120,11 @@ TEST_CASE("events")
     SomeSystem sys;
 
     // SomeSystem* syslink = &sys;
-    SomeSystem * syslink = &sys;
+    SomeSystem* syslink = &sys;
     {
-        entt::dispatcher dispatcher {};
-        dispatcher.sink<SomeEvent>().connect<&SomeSystem::onSomeEvent>(*syslink);
+        entt::dispatcher dispatcher{};
+        dispatcher.sink<SomeEvent>().connect<&SomeSystem::onSomeEvent>(
+                *syslink);
         dispatcher.sink<AnotherEvent>().connect<&SomeSystem::onAnotherEvent>(
                 *syslink);
 
@@ -131,4 +132,3 @@ TEST_CASE("events")
         dispatcher.trigger<AnotherEvent>("patti", 43);
     }
 }
-

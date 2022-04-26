@@ -69,12 +69,10 @@ void Config::init(std::string_view optionalConfigPath)
 
         m_Log->info("vulkan::vsync {}", config.vsync);
         m_Log->info(
-                "vulkan::validationlayers {}",
-                config.enableValidationLayers);
+                "vulkan::validationlayers {}", config.enableValidationLayers);
         m_Log->info("vulkan::debugutils {}", config.enableDebugUtils);
         m_VulkanConfig = config;
     }
 }
 
 } // namespace config
-

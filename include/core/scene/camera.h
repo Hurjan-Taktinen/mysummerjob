@@ -8,12 +8,10 @@
 
 #include <numbers>
 
-
 namespace core::scene
 {
 
-class TrackBall final :
-    public std::enable_shared_from_this<TrackBall>
+class TrackBall final : public std::enable_shared_from_this<TrackBall>
 {
 public:
     TrackBall() : m_Log(logs::Log::create("Camera")) {}
@@ -60,4 +58,3 @@ private:
 };
 
 } // namespace core::scene
-

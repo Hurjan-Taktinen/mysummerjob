@@ -11,4 +11,4 @@ struct ApplicationStopEvent final
     bool stop = false;
 };
 
-}
+} // namespace event

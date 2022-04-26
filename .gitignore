@@ -1,10 +1,6 @@
-.vscode/
-.vs/
-*.srctrl*
-
 build/
+builddir/
+.cache/
 
 compile_commands.json
 
-subprojects/*
-!subprojects/*.wrap

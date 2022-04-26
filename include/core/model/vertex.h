@@ -13,9 +13,7 @@ namespace core::model
 {
 struct VertexPC final
 {
-    VertexPC(const glm::vec3& pp, const glm::vec3& cc) : p(pp), c(cc)
-    {
-    }
+    VertexPC(const glm::vec3& pp, const glm::vec3& cc) : p(pp), c(cc) {}
 
     glm::vec3 p;
     glm::vec3 c;
@@ -48,9 +46,7 @@ struct VertexPC final
 
 struct VertexPT final
 {
-    VertexPT(const glm::vec3& pp, const glm::vec2& tt) : p(pp), t(tt)
-    {
-    }
+    VertexPT(const glm::vec3& pp, const glm::vec2& tt) : p(pp), t(tt) {}
 
     glm::vec3 p;
     glm::vec2 t;

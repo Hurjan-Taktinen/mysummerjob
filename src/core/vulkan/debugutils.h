@@ -43,5 +43,4 @@ private:
     const VkInstance& m_Instance;
 };
 
-} // namespace render::vk
-
+} // namespace core::vk

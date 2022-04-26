@@ -20,7 +20,7 @@ cmake_opt_glfw.add_cmake_defines({'GLFW_BUILD_TESTS': false})
 cmake_opt_glfw.add_cmake_defines({'GLFW_BUILD_EXAMPLES': false})
 cmake_opt_glfw.add_cmake_defines({'GLFW_USE_WAYLAND': false})
 cmake_opt_glfw.add_cmake_defines({'GLFW_VULKAN_STATIC': true})
-cmake_opt_glfw.add_cmake_defines({'CMAKE_BUILD_TYPE': 'Debug'})
+cmake_opt_glfw.add_cmake_defines({'CMAKE_BUILD_TYPE': 'Release'})
 cmake_opt_glfw.set_override_option('warning_level', '0')
 cmake_opt_glfw.set_override_option('werror', 'false')
 

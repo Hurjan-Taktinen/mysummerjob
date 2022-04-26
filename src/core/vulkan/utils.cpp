@@ -57,4 +57,4 @@ std::string deviceType(VkPhysicalDeviceType deviceType)
     // clang-format on
 }
 
-} // namespace render::vk::utils
+} // namespace core::vk::utils

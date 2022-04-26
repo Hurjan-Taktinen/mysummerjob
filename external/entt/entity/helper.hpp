@@ -1,7 +1,6 @@
 #ifndef ENTT_ENTITY_HELPER_HPP
 #define ENTT_ENTITY_HELPER_HPP
 
-
 #include <type_traits>
 #include "../config/config.h"
 #include "../core/type_traits.hpp"
@@ -9,16 +8,16 @@
 #include "registry.hpp"
 #include "fwd.hpp"
 
-
-namespace entt {
-
+namespace entt
+{
 
 /**
  * @brief Converts a registry to a view.
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
 template<typename Entity>
-struct as_view {
+struct as_view
+{
     /*! @brief Underlying entity identifier. */
     using entity_type = std::remove_const_t<Entity>;
     /*! @brief Type of registry to convert. */
@@ -28,7 +27,7 @@ struct as_view {
      * @brief Constructs a converter for a given registry.
      * @param source A valid reference to a registry.
      */
-    as_view(registry_type &source) ENTT_NOEXCEPT: reg{source} {}
+    as_view(registry_type& source) ENTT_NOEXCEPT : reg{source} {}
 
     /**
      * @brief Conversion function from a registry to a view.
@@ -37,37 +36,36 @@ struct as_view {
      * @return A newly created view.
      */
     template<typename Exclude, typename... Component>
-    operator basic_view<entity_type, Exclude, Component...>() const {
+    operator basic_view<entity_type, Exclude, Component...>() const
+    {
         return reg.template view<Component...>(Exclude{});
     }
 
 private:
-    registry_type &reg;
+    registry_type& reg;
 };
 
+/**
+ * @brief Deduction guide.
+ * @tparam Entity A valid entity type (see entt_traits for more details).
+ */
+template<typename Entity>
+as_view(basic_registry<Entity>&) -> as_view<Entity>;
 
 /**
  * @brief Deduction guide.
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
 template<typename Entity>
-as_view(basic_registry<Entity> &) -> as_view<Entity>;
-
-
-/**
- * @brief Deduction guide.
- * @tparam Entity A valid entity type (see entt_traits for more details).
- */
-template<typename Entity>
-as_view(const basic_registry<Entity> &) -> as_view<const Entity>;
-
+as_view(const basic_registry<Entity>&) -> as_view<const Entity>;
 
 /**
  * @brief Converts a registry to a group.
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
 template<typename Entity>
-struct as_group {
+struct as_group
+{
     /*! @brief Underlying entity identifier. */
     using entity_type = std::remove_const_t<Entity>;
     /*! @brief Type of registry to convert. */
@@ -77,7 +75,7 @@ struct as_group {
      * @brief Constructs a converter for a given registry.
      * @param source A valid reference to a registry.
      */
-    as_group(registry_type &source) ENTT_NOEXCEPT: reg{source} {}
+    as_group(registry_type& source) ENTT_NOEXCEPT : reg{source} {}
 
     /**
      * @brief Conversion function from a registry to a group.
@@ -87,35 +85,35 @@ struct as_group {
      * @return A newly created group.
      */
     template<typename Exclude, typename Get, typename... Owned>
-    operator basic_group<entity_type, Exclude, Get, Owned...>() const {
-        if constexpr(std::is_const_v<registry_type>) {
+    operator basic_group<entity_type, Exclude, Get, Owned...>() const
+    {
+        if constexpr(std::is_const_v<registry_type>)
+        {
             return reg.template group_if_exists<Owned...>(Get{}, Exclude{});
-        } else {
+        }
+        else
+        {
             return reg.template group<Owned...>(Get{}, Exclude{});
         }
     }
 
 private:
-    registry_type &reg;
+    registry_type& reg;
 };
 
+/**
+ * @brief Deduction guide.
+ * @tparam Entity A valid entity type (see entt_traits for more details).
+ */
+template<typename Entity>
+as_group(basic_registry<Entity>&) -> as_group<Entity>;
 
 /**
  * @brief Deduction guide.
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
 template<typename Entity>
-as_group(basic_registry<Entity> &) -> as_group<Entity>;
-
-
-/**
- * @brief Deduction guide.
- * @tparam Entity A valid entity type (see entt_traits for more details).
- */
-template<typename Entity>
-as_group(const basic_registry<Entity> &) -> as_group<const Entity>;
-
-
+as_group(const basic_registry<Entity>&) -> as_group<const Entity>;
 
 /**
  * @brief Helper to create a listener that directly invokes a member function.
@@ -125,13 +123,16 @@ as_group(const basic_registry<Entity> &) -> as_group<const Entity>;
  * @param entt Entity from which to get the component.
  */
 template<auto Member, typename Entity = entity>
-void invoke(basic_registry<Entity> &reg, const Entity entt) {
-    static_assert(std::is_member_function_pointer_v<decltype(Member)>, "Invalid pointer to non-static member function");
-    delegate<void(basic_registry<Entity> &, const Entity)> func;
-    func.template connect<Member>(reg.template get<member_class_t<decltype(Member)>>(entt));
+void invoke(basic_registry<Entity>& reg, const Entity entt)
+{
+    static_assert(
+            std::is_member_function_pointer_v<decltype(Member)>,
+            "Invalid pointer to non-static member function");
+    delegate<void(basic_registry<Entity>&, const Entity)> func;
+    func.template connect<Member>(
+            reg.template get<member_class_t<decltype(Member)>>(entt));
     func(reg, entt);
 }
-
 
 /**
  * @brief Returns the entity associated with a given component.
@@ -142,13 +143,12 @@ void invoke(basic_registry<Entity> &reg, const Entity entt) {
  * @return The entity associated with the given component.
  */
 template<typename Entity, typename Component>
-Entity to_entity(const basic_registry<Entity> &reg, const Component &component) {
+Entity to_entity(const basic_registry<Entity>& reg, const Component& component)
+{
     const auto view = reg.template view<const Component>();
     return *(view.data() + (&component - view.raw()));
 }
 
-
-}
-
+} // namespace entt
 
 #endif

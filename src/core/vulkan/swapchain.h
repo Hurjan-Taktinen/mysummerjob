@@ -39,7 +39,6 @@ public:
     }
 
 private:
-
     logs::Logger m_Log;
     Device* m_Device;
     VkInstance m_Instance;
@@ -68,4 +67,3 @@ private:
 };
 
 } // namespace core::vk
-

@@ -41,4 +41,3 @@ struct KeyReleasedEvent : KeyEvent
 };
 
 } // namespace event
-

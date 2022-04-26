@@ -24,15 +24,15 @@ void UiLayer::dockspace()
     {
         static bool opt_fullscreen_persistant = true;
         bool opt_fullscreen = opt_fullscreen_persistant;
-        static ImGuiDockNodeFlags
-                dockspace_flags = ImGuiDockNodeFlags_None
-                                  | ImGuiDockNodeFlags_PassthruCentralNode;
+        static ImGuiDockNodeFlags dockspace_flags =
+                ImGuiDockNodeFlags_None
+                | ImGuiDockNodeFlags_PassthruCentralNode;
 
         // We are using the ImGuiWindowFlags_NoDocking flag to make the
         // parent window not dockable into, because it would be
         // confusing to have two docking targets within each others.
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar
-                                        | ImGuiWindowFlags_NoDocking;
+        ImGuiWindowFlags window_flags =
+                ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
         if(opt_fullscreen)
         {
             ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -93,11 +93,11 @@ auto UiLayer::openFileButton(std::string_view caption) const -> std::string
 
     std::string filename;
     char buffer[1024];
-    FILE* file = popen(
-            "zenity --title=\"Select a obj model file to load\" "
-            "--file-filter=\"OBJ files | *.obj\" "
-            "--file-selection",
-            "r");
+    FILE* file =
+            popen("zenity --title=\"Select a obj model file to load\" "
+                  "--file-filter=\"OBJ files | *.obj\" "
+                  "--file-selection",
+                  "r");
     if(file)
     {
         while(fgets(buffer, sizeof(buffer), file))
