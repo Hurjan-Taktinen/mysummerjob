@@ -12,7 +12,7 @@ namespace core::scene
 //
 //
 
-void TrackBall::initCamera(uint32_t width, uint32_t height)
+void TrackBall::setProjection(uint32_t width, uint32_t height)
 {
     float aspect = static_cast<float>(width) / static_cast<float>(height);
     matrices.proj =

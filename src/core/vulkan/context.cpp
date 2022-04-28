@@ -241,6 +241,7 @@ void Context::renderFrame(float dt)
             m_PresentCompleteSemaphores[m_FrameIndex], &imageIndex);
     if(result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR)
     {
+        vkDeviceWaitIdle(m_Device->getLogicalDevice());
         recreateSwapchain();
 
         // imageIndex received previously is stale, reacquire (or could just
@@ -784,14 +785,19 @@ void Context::createGraphicsPipeline()
 
     // --
 
+    VkPushConstantRange pushConstantRange = {};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(glm::vec4);
+
     VkPipelineLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     layoutInfo.pNext = nullptr;
     layoutInfo.flags = 0;
     layoutInfo.setLayoutCount = 1;
     layoutInfo.pSetLayouts = &m_DescSetLayout;
-    layoutInfo.pushConstantRangeCount = 0;
-    layoutInfo.pPushConstantRanges = nullptr;
+    layoutInfo.pushConstantRangeCount = 1;
+    layoutInfo.pPushConstantRanges = &pushConstantRange;
 
     VK_CHECK(vkCreatePipelineLayout(
             m_Device->getLogicalDevice(),
@@ -957,14 +963,25 @@ void Context::renderSceneItems(VkCommandBuffer cmdBuf)
     assert(m_Scene);
     VkDeviceSize offsets[] = {0};
 
-    auto view = m_Registry.view<scene::component::VertexInfo>();
+    auto view = m_Registry
+                        .view<scene::component::VertexInfo,
+                              scene::component::Position>();
     for(auto entity : view)
     {
         auto vertexInfo = view.get<scene::component::VertexInfo>(entity);
+        auto pos = view.get<scene::component::Position>(entity).pos;
         const auto* vb = &vertexInfo.vertexBuffer;
-        const auto ib = vertexInfo.indexBuffer;
+        const auto& ib = vertexInfo.indexBuffer;
         vkCmdBindVertexBuffers(cmdBuf, 0, 1, vb, offsets);
         vkCmdBindIndexBuffer(cmdBuf, ib, 0, VK_INDEX_TYPE_UINT32);
+
+        vkCmdPushConstants(
+                cmdBuf,
+                m_PipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT,
+                0,
+                sizeof(glm::vec4),
+                &pos[0]);
         vkCmdDrawIndexed(cmdBuf, vertexInfo.numIndices, 1, 0, 0, 0);
     }
 }
@@ -1014,7 +1031,7 @@ void Context::updateUniformBuffers(float dt)
     ubo.proj[0][0] *= -1.0f;
     ubo.modelInverse = glm::inverse(ubo.model);
     ubo.projViewInverse = glm::inverse(ubo.view) * glm::inverse(ubo.proj);
-    ubo.time = dt;
+    ubo.time = timepass;
 
     void* data;
     vmaMapMemory(
@@ -1240,6 +1257,8 @@ void Context::updateDescriptorSets()
                 renderInfo.imageInfos.begin(),
                 renderInfo.imageInfos.end());
         materialBufferInfos.push_back(renderInfo.buffeInfo);
+        break;
+        // TODO AWAW this breaks without break
     }
 
     for(std::size_t i = 0; i < m_DescriptorSet.size(); ++i)

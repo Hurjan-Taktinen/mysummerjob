@@ -11,8 +11,8 @@ namespace core::scene::component
 
 struct Position
 {
-    glm::vec3 pos;
-    constexpr operator glm::vec3() const { return pos; }
+    glm::vec4 pos;
+    constexpr operator glm::vec4() const { return pos; }
 };
 
 struct Transform

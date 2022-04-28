@@ -21,7 +21,7 @@ void Texture2d::loadFromFile(
 {
     std::string extension = utils::getExtension(file);
 
-    assert(this->device);
+    // assert(this->device);
     this->device = device;
 
     VkBuffer stagingBuffer = VK_NULL_HANDLE;

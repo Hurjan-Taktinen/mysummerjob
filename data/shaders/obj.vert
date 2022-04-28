@@ -21,19 +21,57 @@ layout(binding = 0) uniform UniformBufferObject
     mat4 modelIT;
     mat4 viewProjInverse;
     float time;
-} ubo;
+}
+ubo;
+
+layout(push_constant) uniform PushConstants
+{
+    vec4 position;
+}
+pushConsts;
+
+mat4 rotationMatrix(vec3 axis, float angle)
+{
+    vec3 a = normalize(axis);
+
+    float s = sin(angle);
+    float c = cos(angle);
+
+    float oc = 1.0 - c;
+
+    float sx = s * a.x;
+    float sy = s * a.y;
+    float sz = s * a.z;
+
+    float ocx = oc * a.x;
+    float ocy = oc * a.y;
+    float ocz = oc * a.z;
+
+    float ocxx = ocx * a.x;
+    float ocxy = ocx * a.y;
+    float ocxz = ocx * a.z;
+    float ocyy = ocy * a.y;
+    float ocyz = ocy * a.z;
+    float oczz = ocz * a.z;
+
+    return mat4(
+            vec4(ocxx + c, ocxy - sz, ocxz + sy, 0.0),
+            vec4(ocxy + sz, ocyy + c, ocyz - sx, 0.0),
+            vec4(ocxz - sy, ocyz + sx, oczz + c, 0.0),
+            vec4(0.0, 0.0, 0.0, 1.0));
+}
 
 void main()
 {
     fragColor = inColor;
 
-    // float x = -inPosition.x;
-    // float y = inPosition.y;
-    // float z = inPosition.z;
-
     fragPos = vec3(ubo.model * vec4(inPosition, 1.0)).xyz;
+
+    vec4 posOffset = pushConsts.position;
+
     matIndex = inMaterialIdx;
     fragNormal = normalize(vec3(ubo.modelIT * vec4(inNormal, 0.0)));
     fragTexcoord = inTexCoord;
-    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
+    gl_Position = ubo.proj * ubo.view * ubo.model * rotationMatrix(vec3(0,0,1), 3 * ubo.time)
+                  * vec4(inPosition + posOffset.xyz, 1.0);
 }

@@ -222,9 +222,6 @@ void Model::load(const std::string& path)
                 m_Indices.data());
     }
 
-    fmt::print("NumVertices {}\n", m_Vertices.size());
-    fmt::print("NumIndices {}\n", m_Indices.size());
-
     { // Materials
         VkDeviceSize size = sizeof(MaterialUbo) * m_Materials.size();
         m_Device->createBufferOnGPU(
@@ -269,7 +266,7 @@ void Model::load(const std::string& path)
 
     glm::translate(transform, position);
 
-    m_Registry.emplace<scene::component::Position>(ent, position);
+    m_Registry.emplace<scene::component::Position>(ent, glm::vec4(position, 0.0f));
     m_Registry.emplace<scene::component::Transform>(ent, transform);
     m_Registry.emplace<scene::component::VertexInfo>(ent, vertexInfo);
     m_Registry.emplace<scene::component::RenderInfo>(ent, renderInfo);

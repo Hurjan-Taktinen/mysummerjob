@@ -26,7 +26,7 @@ private:
     void initilizeGLFW();
     void mainloop();
 
-    void handleKeyboardInput(int key, int action, int mods);
+    void handleKeyboardInput(int key, bool isPressed, int mods);
     void handleMouseButtonInput(int button, bool isPressed);
     void handleMouseScrollInput(double yoffset);
     void handleMousePositionInput(double xpos, double ypos);

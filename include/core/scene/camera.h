@@ -22,7 +22,7 @@ public:
         glm::mat4 proj;
     } matrices;
 
-    void initCamera(uint32_t width, uint32_t height);
+    void setProjection(uint32_t width, uint32_t height);
     void update(float dt);
 
     void updateRotation(float dtheta, float dphi);
@@ -37,12 +37,12 @@ private:
 
     logs::Logger m_Log;
 
+    float m_Radius = 20.0f;
     glm::vec3 m_Target = glm::vec3(0);
-    glm::vec3 m_Position = glm::vec3(0,0,-5);
+    glm::vec3 m_Position = glm::vec3(0, 0, m_Radius);
 
     float m_Theta = std::numbers::pi;
     float m_Phi = std::numbers::pi * 0.5f;
-    float m_Radius = 5.0f;
     glm::vec3 m_Up = glm::vec3(0, 1, 0);
 
     float m_Fov = 45.0f;

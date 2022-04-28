@@ -76,6 +76,11 @@ public:
     }
 
 private:
+    struct PushConstantBlock
+    {
+        glm::vec4 position = glm::vec4(0.0f);
+    } m_PushConstants;
+
     inline static logs::Logger m_Log;
     vk::Device* m_Device;
     entt::registry& m_Registry;

@@ -41,7 +41,7 @@ void Application::run()
     }
 
     m_Camera = std::make_shared<core::scene::TrackBall>();
-    m_Camera->initCamera(m_FrameBufferSize.width, m_FrameBufferSize.height);
+    m_Camera->setProjection(m_FrameBufferSize.width, m_FrameBufferSize.height);
 
     m_Scene = std::make_shared<core::scene::Scene>(m_Registry, m_Camera.get());
 
@@ -177,30 +177,19 @@ void Application::onErrorCallback(int error, const char* description)
     LGWARNING("GLFW Error ({}): {}", error, description);
 }
 
-void Application::handleKeyboardInput(int key, int action, int mods)
+void Application::handleKeyboardInput(int key, bool isPressed, int mods)
 {
     (void)mods;
 
-    if(action == GLFW_PRESS)
-    {
-        if(key == GLFW_KEY_ESCAPE)
+        if(key == GLFW_KEY_ESCAPE && isPressed)
         {
             glfwSetWindowShouldClose(m_Window.get(), true);
             return;
         }
         if(key == GLFW_KEY_LEFT_SHIFT)
         {
-            // TODO TEE PAREMPI
-            m_Keyboard.lShift = true;
+            m_Keyboard.lShift = isPressed;
         }
-    }
-    else if(action == GLFW_RELEASE)
-    {
-        if(key == GLFW_KEY_LEFT_SHIFT)
-        {
-            m_Keyboard.lShift = false;
-        }
-    }
 }
 
 void Application::onKeyCallback(
@@ -217,11 +206,11 @@ void Application::onKeyCallback(
     auto app = static_cast<Application*>(glfwGetWindowUserPointer(window));
     if(action == GLFW_PRESS)
     {
-        app->handleKeyboardInput(key, action, mods);
+        app->handleKeyboardInput(key, true, mods);
     }
     else if(action == GLFW_RELEASE)
     {
-        app->handleKeyboardInput(key, action, mods);
+        app->handleKeyboardInput(key, false, mods);
     }
 }
 
@@ -270,6 +259,7 @@ void Application::handleFramebufferResize(int width, int height)
     m_FrameBufferSize.width = static_cast<uint32_t>(width);
     m_FrameBufferSize.height = static_cast<uint32_t>(height);
 
+    m_Camera->setProjection(m_FrameBufferSize.width, m_FrameBufferSize.height);
     m_VulkanContext->m_FrameBufferResized = true;
 }
 
