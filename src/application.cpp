@@ -160,6 +160,7 @@ void Application::mainloop()
         }
         m_UiLayer->end();
 
+        m_Scene->updatePositions(m_ApprunTime);
         m_VulkanContext->renderFrame(m_FrameTime);
 
         m_FrameTime = timer.elapsed();

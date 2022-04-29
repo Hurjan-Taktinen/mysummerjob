@@ -69,9 +69,11 @@ void main()
 
     vec4 posOffset = pushConsts.position;
 
+
     matIndex = inMaterialIdx;
     fragNormal = normalize(vec3(ubo.modelIT * vec4(inNormal, 0.0)));
     fragTexcoord = inTexCoord;
-    gl_Position = ubo.proj * ubo.view * ubo.model * rotationMatrix(vec3(0,0,1), 3 * ubo.time)
-                  * vec4(inPosition + posOffset.xyz, 1.0);
+    /* gl_Position = ubo.proj * ubo.view * ubo.model * rotationMatrix(vec3(0,0,1), 3 * ubo.time) */
+    /*               * vec4(inPosition + posOffset.xyz, 1.0); */
+    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition + posOffset.xyz, 1.0);
 }

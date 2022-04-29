@@ -11,6 +11,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+#include "core/scene/components.h"
+
 namespace core::scene
 {
 class Scene
@@ -50,6 +52,20 @@ public:
     }
 
     [[nodiscard]] const auto* getCamera() const { return m_Camera; }
+
+    inline void updatePositions(float time)
+    {
+        auto view = m_Registry.view<scene::component::Position>();
+        float i = 0;
+        for(auto entity : view)
+        {
+            const float rad = glm::radians((i + time) * 360.0f / 12);
+            auto& pos = view.get<scene::component::Position>(entity);
+            pos.pos =
+                    glm::vec4(glm::vec3(sin(rad), cos(rad), 0.0f) * 5.0f, 1.0f);
+            i += 1.0f;
+        }
+    }
 
 private:
     entt::registry& m_Registry;
