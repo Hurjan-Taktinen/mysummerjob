@@ -4,12 +4,13 @@
 #include <utility>
 #include "../config/config.h"
 
-namespace entt
-{
+namespace entt {
 
 /*! @brief Identity function object (waiting for C++20). */
-struct identity
-{
+struct identity {
+    /*! @brief Indicates that this is a transparent function object. */
+    using is_transparent = void;
+
     /**
      * @brief Returns its argument unchanged.
      * @tparam Type Type of the argument.
@@ -17,8 +18,7 @@ struct identity
      * @return The submitted value as-is.
      */
     template<class Type>
-    [[nodiscard]] constexpr Type&& operator()(Type&& value) const ENTT_NOEXCEPT
-    {
+    [[nodiscard]] constexpr Type &&operator()(Type &&value) const ENTT_NOEXCEPT {
         return std::forward<Type>(value);
     }
 };
@@ -31,8 +31,7 @@ struct identity
  * @return Pointer to the member.
  */
 template<typename Type, typename Class>
-[[nodiscard]] constexpr auto overload(Type Class::*member) ENTT_NOEXCEPT
-{
+[[nodiscard]] constexpr auto overload(Type Class::*member) ENTT_NOEXCEPT {
     return member;
 }
 
@@ -43,8 +42,7 @@ template<typename Type, typename Class>
  * @return Pointer to the function.
  */
 template<typename Func>
-[[nodiscard]] constexpr auto overload(Func* func) ENTT_NOEXCEPT
-{
+[[nodiscard]] constexpr auto overload(Func *func) ENTT_NOEXCEPT {
     return func;
 }
 
@@ -53,8 +51,7 @@ template<typename Func>
  * @tparam Func Types of function objects.
  */
 template<class... Func>
-struct overloaded : Func...
-{
+struct overloaded: Func... {
     using Func::operator()...;
 };
 
@@ -70,13 +67,13 @@ overloaded(Func...) -> overloaded<Func...>;
  * @tparam Func Type of a potentially recursive function.
  */
 template<class Func>
-struct y_combinator
-{
+struct y_combinator {
     /**
      * @brief Constructs a y-combinator from a given function.
      * @param recursive A potentially recursive function.
      */
-    y_combinator(Func recursive) : func{std::move(recursive)} {}
+    y_combinator(Func recursive)
+        : func{std::move(recursive)} {}
 
     /**
      * @brief Invokes a y-combinator and therefore its underlying function.
@@ -85,15 +82,13 @@ struct y_combinator
      * @return Return value of the underlying function, if any.
      */
     template<class... Args>
-    decltype(auto) operator()(Args&&... args) const
-    {
+    decltype(auto) operator()(Args &&...args) const {
         return func(*this, std::forward<Args>(args)...);
     }
 
     /*! @copydoc operator()() */
     template<class... Args>
-    decltype(auto) operator()(Args&&... args)
-    {
+    decltype(auto) operator()(Args &&...args) {
         return func(*this, std::forward<Args>(args)...);
     }
 

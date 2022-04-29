@@ -1,12 +1,12 @@
 #ifndef ENTT_PROCESS_PROCESS_HPP
 #define ENTT_PROCESS_PROCESS_HPP
 
-#include <utility>
+#include <cstdint>
 #include <type_traits>
+#include <utility>
 #include "../config/config.h"
 
-namespace entt
-{
+namespace entt {
 
 /**
  * @brief Base class for processes.
@@ -68,56 +68,46 @@ namespace entt
  * @tparam Delta Type to use to provide elapsed time.
  */
 template<typename Derived, typename Delta>
-class process
-{
-    enum class state : unsigned int
-    {
-        UNINITIALIZED = 0,
-        RUNNING,
-        PAUSED,
-        SUCCEEDED,
-        FAILED,
-        ABORTED,
-        FINISHED,
-        REJECTED
+class process {
+    enum class state : std::uint8_t {
+        uninitialized = 0,
+        running,
+        paused,
+        succeeded,
+        failed,
+        aborted,
+        finished,
+        rejected
     };
 
     template<typename Target = Derived>
-    auto next(std::integral_constant<state, state::UNINITIALIZED>)
-            -> decltype(std::declval<Target>().init(), void())
-    {
-        static_cast<Target*>(this)->init();
+    auto next(std::integral_constant<state, state::uninitialized>)
+        -> decltype(std::declval<Target>().init(), void()) {
+        static_cast<Target *>(this)->init();
     }
 
     template<typename Target = Derived>
-    auto next(
-            std::integral_constant<state, state::RUNNING>,
-            Delta delta,
-            void* data)
-            -> decltype(std::declval<Target>().update(delta, data), void())
-    {
-        static_cast<Target*>(this)->update(delta, data);
+    auto next(std::integral_constant<state, state::running>, Delta delta, void *data)
+        -> decltype(std::declval<Target>().update(delta, data), void()) {
+        static_cast<Target *>(this)->update(delta, data);
     }
 
     template<typename Target = Derived>
-    auto next(std::integral_constant<state, state::SUCCEEDED>)
-            -> decltype(std::declval<Target>().succeeded(), void())
-    {
-        static_cast<Target*>(this)->succeeded();
+    auto next(std::integral_constant<state, state::succeeded>)
+        -> decltype(std::declval<Target>().succeeded(), void()) {
+        static_cast<Target *>(this)->succeeded();
     }
 
     template<typename Target = Derived>
-    auto next(std::integral_constant<state, state::FAILED>)
-            -> decltype(std::declval<Target>().failed(), void())
-    {
-        static_cast<Target*>(this)->failed();
+    auto next(std::integral_constant<state, state::failed>)
+        -> decltype(std::declval<Target>().failed(), void()) {
+        static_cast<Target *>(this)->failed();
     }
 
     template<typename Target = Derived>
-    auto next(std::integral_constant<state, state::ABORTED>)
-            -> decltype(std::declval<Target>().aborted(), void())
-    {
-        static_cast<Target*>(this)->aborted();
+    auto next(std::integral_constant<state, state::aborted>)
+        -> decltype(std::declval<Target>().aborted(), void()) {
+        static_cast<Target *>(this)->aborted();
     }
 
     void next(...) const ENTT_NOEXCEPT {}
@@ -129,11 +119,9 @@ protected:
      * The function is idempotent and it does nothing if the process isn't
      * alive.
      */
-    void succeed() ENTT_NOEXCEPT
-    {
-        if(alive())
-        {
-            current = state::SUCCEEDED;
+    void succeed() ENTT_NOEXCEPT {
+        if(alive()) {
+            current = state::succeeded;
         }
     }
 
@@ -143,11 +131,9 @@ protected:
      * The function is idempotent and it does nothing if the process isn't
      * alive.
      */
-    void fail() ENTT_NOEXCEPT
-    {
-        if(alive())
-        {
-            current = state::FAILED;
+    void fail() ENTT_NOEXCEPT {
+        if(alive()) {
+            current = state::failed;
         }
     }
 
@@ -157,11 +143,9 @@ protected:
      * The function is idempotent and it does nothing if the process isn't
      * running.
      */
-    void pause() ENTT_NOEXCEPT
-    {
-        if(current == state::RUNNING)
-        {
-            current = state::PAUSED;
+    void pause() ENTT_NOEXCEPT {
+        if(current == state::running) {
+            current = state::paused;
         }
     }
 
@@ -171,11 +155,9 @@ protected:
      * The function is idempotent and it does nothing if the process isn't
      * paused.
      */
-    void unpause() ENTT_NOEXCEPT
-    {
-        if(current == state::PAUSED)
-        {
-            current = state::RUNNING;
+    void unpause() ENTT_NOEXCEPT {
+        if(current == state::paused) {
+            current = state::running;
         }
     }
 
@@ -184,11 +166,8 @@ public:
     using delta_type = Delta;
 
     /*! @brief Default destructor. */
-    virtual ~process()
-    {
-        static_assert(
-                std::is_base_of_v<process, Derived>,
-                "Incorrect use of the class template");
+    virtual ~process() ENTT_NOEXCEPT {
+        static_assert(std::is_base_of_v<process, Derived>, "Incorrect use of the class template");
     }
 
     /**
@@ -199,14 +178,11 @@ public:
      *
      * @param immediately Requests an immediate operation.
      */
-    void abort(const bool immediately = false)
-    {
-        if(alive())
-        {
-            current = state::ABORTED;
+    void abort(const bool immediately = false) {
+        if(alive()) {
+            current = state::aborted;
 
-            if(immediately)
-            {
+            if(immediately) {
                 tick({});
             }
         }
@@ -216,36 +192,32 @@ public:
      * @brief Returns true if a process is either running or paused.
      * @return True if the process is still alive, false otherwise.
      */
-    [[nodiscard]] bool alive() const ENTT_NOEXCEPT
-    {
-        return current == state::RUNNING || current == state::PAUSED;
+    [[nodiscard]] bool alive() const ENTT_NOEXCEPT {
+        return current == state::running || current == state::paused;
     }
 
     /**
      * @brief Returns true if a process is already terminated.
      * @return True if the process is terminated, false otherwise.
      */
-    [[nodiscard]] bool dead() const ENTT_NOEXCEPT
-    {
-        return current == state::FINISHED;
+    [[nodiscard]] bool finished() const ENTT_NOEXCEPT {
+        return current == state::finished;
     }
 
     /**
      * @brief Returns true if a process is currently paused.
      * @return True if the process is paused, false otherwise.
      */
-    [[nodiscard]] bool paused() const ENTT_NOEXCEPT
-    {
-        return current == state::PAUSED;
+    [[nodiscard]] bool paused() const ENTT_NOEXCEPT {
+        return current == state::paused;
     }
 
     /**
      * @brief Returns true if a process terminated with errors.
      * @return True if the process terminated with errors, false otherwise.
      */
-    [[nodiscard]] bool rejected() const ENTT_NOEXCEPT
-    {
-        return current == state::REJECTED;
+    [[nodiscard]] bool rejected() const ENTT_NOEXCEPT {
+        return current == state::rejected;
     }
 
     /**
@@ -253,16 +225,14 @@ public:
      * @param delta Elapsed time.
      * @param data Optional data.
      */
-    void tick(const Delta delta, void* data = nullptr)
-    {
-        switch(current)
-        {
-        case state::UNINITIALIZED:
-            next(std::integral_constant<state, state::UNINITIALIZED>{});
-            current = state::RUNNING;
+    void tick(const Delta delta, void *data = nullptr) {
+        switch(current) {
+        case state::uninitialized:
+            next(std::integral_constant<state, state::uninitialized>{});
+            current = state::running;
             break;
-        case state::RUNNING:
-            next(std::integral_constant<state, state::RUNNING>{}, delta, data);
+        case state::running:
+            next(std::integral_constant<state, state::running>{}, delta, data);
             break;
         default:
             // suppress warnings
@@ -270,19 +240,18 @@ public:
         }
 
         // if it's dead, it must be notified and removed immediately
-        switch(current)
-        {
-        case state::SUCCEEDED:
-            next(std::integral_constant<state, state::SUCCEEDED>{});
-            current = state::FINISHED;
+        switch(current) {
+        case state::succeeded:
+            next(std::integral_constant<state, state::succeeded>{});
+            current = state::finished;
             break;
-        case state::FAILED:
-            next(std::integral_constant<state, state::FAILED>{});
-            current = state::REJECTED;
+        case state::failed:
+            next(std::integral_constant<state, state::failed>{});
+            current = state::rejected;
             break;
-        case state::ABORTED:
-            next(std::integral_constant<state, state::ABORTED>{});
-            current = state::REJECTED;
+        case state::aborted:
+            next(std::integral_constant<state, state::aborted>{});
+            current = state::rejected;
             break;
         default:
             // suppress warnings
@@ -291,7 +260,7 @@ public:
     }
 
 private:
-    state current{state::UNINITIALIZED};
+    state current{state::uninitialized};
 };
 
 /**
@@ -334,32 +303,27 @@ private:
  * @tparam Delta Type to use to provide elapsed time.
  */
 template<typename Func, typename Delta>
-struct process_adaptor :
-    process<process_adaptor<Func, Delta>, Delta>,
-    private Func
-{
+struct process_adaptor: process<process_adaptor<Func, Delta>, Delta>, private Func {
     /**
      * @brief Constructs a process adaptor from a lambda or a functor.
      * @tparam Args Types of arguments to use to initialize the actual process.
      * @param args Parameters to use to initialize the actual process.
      */
     template<typename... Args>
-    process_adaptor(Args&&... args) : Func{std::forward<Args>(args)...}
-    {
-    }
+    process_adaptor(Args &&...args)
+        : Func{std::forward<Args>(args)...} {}
 
     /**
      * @brief Updates a process and its internal state if required.
      * @param delta Elapsed time.
      * @param data Optional data.
      */
-    void update(const Delta delta, void* data)
-    {
+    void update(const Delta delta, void *data) {
         Func::operator()(
-                delta,
-                data,
-                [this]() { this->succeed(); },
-                [this]() { this->fail(); });
+            delta,
+            data,
+            [this]() { this->succeed(); },
+            [this]() { this->fail(); });
     }
 };
 

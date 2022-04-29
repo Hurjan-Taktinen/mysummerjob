@@ -1,27 +1,28 @@
 #ifndef ENTT_ENTITY_FWD_HPP
 #define ENTT_ENTITY_FWD_HPP
 
+#include <memory>
 #include "../core/fwd.hpp"
+#include "utility.hpp"
 
-namespace entt
-{
+namespace entt {
 
-template<typename>
+template<typename Entity, typename = std::allocator<Entity>>
 class basic_sparse_set;
 
-template<typename, typename, typename>
+template<typename, typename Type, typename = std::allocator<Type>, typename = void>
 class basic_storage;
 
 template<typename>
 class basic_registry;
 
-template<typename...>
+template<typename, typename, typename, typename = void>
 class basic_view;
 
 template<typename>
-class basic_runtime_view;
+struct basic_runtime_view;
 
-template<typename...>
+template<typename, typename, typename, typename>
 class basic_group;
 
 template<typename>
@@ -43,9 +44,7 @@ template<typename>
 class basic_continuous_loader;
 
 /*! @brief Default entity identifier. */
-enum class entity : id_type
-{
-};
+enum class entity : id_type {};
 
 /*! @brief Alias declaration for the most common use case. */
 using sparse_set = basic_sparse_set<entity>;
@@ -97,13 +96,14 @@ using continuous_loader = basic_continuous_loader<entity>;
 
 /**
  * @brief Alias declaration for the most common use case.
- * @tparam Args Other template parameters.
+ * @tparam Get Types of components iterated by the view.
+ * @tparam Exclude Types of components used to filter the view.
  */
-template<typename... Args>
-using view = basic_view<entity, Args...>;
+template<typename Get, typename Exclude = exclude_t<>>
+using view = basic_view<entity, Get, Exclude>;
 
 /*! @brief Alias declaration for the most common use case. */
-using runtime_view = basic_runtime_view<entity>;
+using runtime_view = basic_runtime_view<sparse_set>;
 
 /**
  * @brief Alias declaration for the most common use case.

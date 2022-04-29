@@ -4,8 +4,7 @@
 #include "../config/config.h"
 #include "fwd.hpp"
 
-namespace entt
-{
+namespace entt {
 
 /**
  * @brief Dynamic identifier generator.
@@ -15,8 +14,7 @@ namespace entt
  * identifiers.
  */
 template<typename...>
-class family
-{
+class family {
     inline static ENTT_MAYBE_ATOMIC(id_type) identifier{};
 
 public:
@@ -25,8 +23,7 @@ public:
 
     /*! @brief Statically generated unique identifier for the given type. */
     template<typename... Type>
-    // at the time I'm writing, clang crashes during compilation if auto is used
-    // instead of family_type
+    // at the time I'm writing, clang crashes during compilation if auto is used instead of family_type
     inline static const family_type type = identifier++;
 };
 

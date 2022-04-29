@@ -2,14 +2,13 @@
 #define ENTT_CORE_IDENT_HPP
 
 #include <cstddef>
-#include <utility>
 #include <type_traits>
+#include <utility>
 #include "../config/config.h"
 #include "fwd.hpp"
 #include "type_traits.hpp"
 
-namespace entt
-{
+namespace entt {
 
 /**
  * @brief Types identifiers.
@@ -39,22 +38,11 @@ namespace entt
  * @tparam Types List of types for which to generate identifiers.
  */
 template<typename... Types>
-class identifier
-{
+class identifier {
     template<typename Type, std::size_t... Index>
-    [[nodiscard]] static constexpr id_type get(std::index_sequence<Index...>)
-    {
-        static_assert(
-                std::disjunction_v<std::is_same<Type, Types>...>,
-                "Invalid type");
-        return (0 + ...
-                + (std::is_same_v<
-                           Type,
-                           type_list_element_t<
-                                   Index,
-                                   type_list<std::decay_t<Types>...>>>
-                           ? id_type{Index}
-                           : id_type{}));
+    [[nodiscard]] static constexpr id_type get(std::index_sequence<Index...>) ENTT_NOEXCEPT {
+        static_assert((std::is_same_v<Type, Types> || ...), "Invalid type");
+        return (0 + ... + (std::is_same_v<Type, type_list_element_t<Index, type_list<std::decay_t<Types>...>>> ? id_type{Index} : id_type{}));
     }
 
 public:
@@ -63,8 +51,7 @@ public:
 
     /*! @brief Statically generated unique identifier for the given type. */
     template<typename Type>
-    static constexpr identifier_type type =
-            get<std::decay_t<Type>>(std::index_sequence_for<Types...>{});
+    static constexpr identifier_type type = get<std::decay_t<Type>>(std::index_sequence_for<Types...>{});
 };
 
 } // namespace entt

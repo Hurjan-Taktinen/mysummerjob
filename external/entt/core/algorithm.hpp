@@ -1,15 +1,14 @@
 #ifndef ENTT_CORE_ALGORITHM_HPP
 #define ENTT_CORE_ALGORITHM_HPP
 
-#include <vector>
-#include <utility>
-#include <iterator>
 #include <algorithm>
 #include <functional>
+#include <iterator>
+#include <utility>
+#include <vector>
 #include "utility.hpp"
 
-namespace entt
-{
+namespace entt {
 
 /**
  * @brief Function object to wrap `std::sort` in a class type.
@@ -19,8 +18,7 @@ namespace entt
  * This class fills the gap by wrapping some flavors of `std::sort` in a
  * function object.
  */
-struct std_sort
-{
+struct std_sort {
     /**
      * @brief Sorts the elements in a range.
      *
@@ -35,23 +33,13 @@ struct std_sort
      * @param args Arguments to forward to the sort function, if any.
      */
     template<typename It, typename Compare = std::less<>, typename... Args>
-    void operator()(
-            It first,
-            It last,
-            Compare compare = Compare{},
-            Args&&... args) const
-    {
-        std::sort(
-                std::forward<Args>(args)...,
-                std::move(first),
-                std::move(last),
-                std::move(compare));
+    void operator()(It first, It last, Compare compare = Compare{}, Args &&...args) const {
+        std::sort(std::forward<Args>(args)..., std::move(first), std::move(last), std::move(compare));
     }
 };
 
 /*! @brief Function object for performing insertion sort. */
-struct insertion_sort
-{
+struct insertion_sort {
     /**
      * @brief Sorts the elements in a range.
      *
@@ -64,17 +52,13 @@ struct insertion_sort
      * @param compare A valid comparison function object.
      */
     template<typename It, typename Compare = std::less<>>
-    void operator()(It first, It last, Compare compare = Compare{}) const
-    {
-        if(first < last)
-        {
-            for(auto it = first + 1; it < last; ++it)
-            {
+    void operator()(It first, It last, Compare compare = Compare{}) const {
+        if(first < last) {
+            for(auto it = first + 1; it < last; ++it) {
                 auto value = std::move(*it);
                 auto pre = it;
 
-                for(; pre > first && compare(value, *(pre - 1)); --pre)
-                {
+                for(; pre > first && compare(value, *(pre - 1)); --pre) {
                     *pre = std::move(*(pre - 1));
                 }
 
@@ -90,12 +74,8 @@ struct insertion_sort
  * @tparam N Maximum number of bits to sort.
  */
 template<std::size_t Bit, std::size_t N>
-struct radix_sort
-{
-    static_assert(
-            (N % Bit) == 0,
-            "The maximum number of bits to sort must be a multiple of the "
-            "number of bits processed per pass");
+struct radix_sort {
+    static_assert((N % Bit) == 0, "The maximum number of bits to sort must be a multiple of the number of bits processed per pass");
 
     /**
      * @brief Sorts the elements in a range.
@@ -104,8 +84,7 @@ struct radix_sort
      * actual data to be sorted.
      *
      * This implementation is inspired by the online book
-     * [Physically Based
-     * Rendering](http://www.pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies.html#RadixSort).
+     * [Physically Based Rendering](http://www.pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies.html#RadixSort).
      *
      * @tparam It Type of random access iterator.
      * @tparam Getter Type of _getter_ function object.
@@ -114,10 +93,8 @@ struct radix_sort
      * @param getter A valid _getter_ function object.
      */
     template<typename It, typename Getter = identity>
-    void operator()(It first, It last, Getter getter = Getter{}) const
-    {
-        if(first < last)
-        {
+    void operator()(It first, It last, Getter getter = Getter{}) const {
+        if(first < last) {
             static constexpr auto mask = (1 << Bit) - 1;
             static constexpr auto buckets = 1 << Bit;
             static constexpr auto passes = N / Bit;
@@ -125,36 +102,29 @@ struct radix_sort
             using value_type = typename std::iterator_traits<It>::value_type;
             std::vector<value_type> aux(std::distance(first, last));
 
-            auto part = [getter = std::move(getter)](
-                                auto from, auto to, auto out, auto start) {
+            auto part = [getter = std::move(getter)](auto from, auto to, auto out, auto start) {
                 std::size_t index[buckets]{};
                 std::size_t count[buckets]{};
 
-                for(auto it = from; it != to; ++it)
-                {
+                for(auto it = from; it != to; ++it) {
                     ++count[(getter(*it) >> start) & mask];
                 }
 
-                for(std::size_t pos{}, end = buckets - 1u; pos < end; ++pos)
-                {
+                for(std::size_t pos{}, end = buckets - 1u; pos < end; ++pos) {
                     index[pos + 1u] = index[pos] + count[pos];
                 }
 
-                for(auto it = from; it != to; ++it)
-                {
-                    out[index[(getter(*it) >> start) & mask]++] =
-                            std::move(*it);
+                for(auto it = from; it != to; ++it) {
+                    out[index[(getter(*it) >> start) & mask]++] = std::move(*it);
                 }
             };
 
-            for(std::size_t pass = 0; pass < (passes & ~1); pass += 2)
-            {
+            for(std::size_t pass = 0; pass < (passes & ~1); pass += 2) {
                 part(first, last, aux.begin(), pass * Bit);
                 part(aux.begin(), aux.end(), first, (pass + 1) * Bit);
             }
 
-            if constexpr(passes & 1)
-            {
+            if constexpr(passes & 1) {
                 part(first, last, aux.begin(), (passes - 1) * Bit);
                 std::move(aux.begin(), aux.end(), first);
             }
