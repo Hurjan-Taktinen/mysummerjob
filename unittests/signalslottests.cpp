@@ -118,8 +118,6 @@ struct SomeSystem
 TEST_CASE("events")
 {
     SomeSystem sys;
-
-    // SomeSystem* syslink = &sys;
     SomeSystem* syslink = &sys;
     {
         entt::dispatcher dispatcher{};
@@ -128,7 +126,6 @@ TEST_CASE("events")
         dispatcher.sink<AnotherEvent>().connect<&SomeSystem::onAnotherEvent>(
                 *syslink);
 
-        dispatcher.trigger<SomeEvent>("hatti", 42);
-        dispatcher.trigger<AnotherEvent>("patti", 43);
+        dispatcher.trigger<SomeEvent>();
     }
 }
