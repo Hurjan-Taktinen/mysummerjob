@@ -2,6 +2,9 @@
 
 #include "logs/log.h"
 
+#include "event/sub.h"
+#include "event/updateevents.h"
+
 #include "glm/mat4x4.hpp"
 #include "glm/vec3.hpp"
 #include "glm/gtc/constants.hpp"
@@ -14,7 +17,10 @@ namespace core::scene
 class TrackBall final : public std::enable_shared_from_this<TrackBall>
 {
 public:
-    TrackBall() : m_Log(logs::Log::create("Camera")) {}
+    TrackBall(entt::dispatcher& disp) :
+        m_Log(logs::Log::create("Camera")), m_conn(disp, this)
+    {
+    }
 
     struct
     {
@@ -36,6 +42,7 @@ private:
     [[nodiscard]] glm::vec3 toCartesian() const;
 
     logs::Logger m_Log;
+    event::Subs<TrackBall> m_conn;
 
     float m_Radius = 20.0f;
     glm::vec3 m_Target = glm::vec3(0);

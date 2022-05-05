@@ -10,21 +10,21 @@ namespace app
 {
 
 Application::Application() :
-    m_Log(logs::Log::create("Application")),
-    m_BaseConfig(config::Config::getBaseConfig())
+    _log(logs::Log::create("Application")),
+    _baseConfig(config::Config::getBaseConfig())
 {
 }
 
 Application::~Application()
 {
-    m_VulkanContext->deviceWaitIdle();
-    m_Scene->clear();
-    m_Scene.reset();
+    _vulkanContext->deviceWaitIdle();
+    _scene->clear();
+    _scene.reset();
     ImGui_ImplGlfw_Shutdown();
-    m_Log->info("Stopping");
-    m_VulkanContext.reset();
-    m_Camera.reset();
-    m_Window.reset();
+    _log->info("Stopping");
+    _vulkanContext.reset();
+    _camera.reset();
+    _window.reset();
     glfwTerminate();
 }
 
@@ -36,31 +36,31 @@ void Application::run()
     }
     catch(...)
     {
-        m_Log->error("Initialization failed, exiting...");
+        _log->error("Initialization failed, exiting...");
         return;
     }
 
-    m_Camera = std::make_shared<core::scene::TrackBall>();
-    m_Camera->setProjection(m_FrameBufferSize.width, m_FrameBufferSize.height);
+    _camera = std::make_shared<core::scene::TrackBall>(_dispatcher);
+    _camera->setProjection(_frameBufferSize.width, _frameBufferSize.height);
 
-    m_Scene = std::make_shared<core::scene::Scene>(m_Registry, m_Camera.get());
+    _scene = std::make_shared<core::scene::Scene>(_registry, _camera.get());
 
-    m_VulkanContext = std::make_shared<core::vk::Context>(
-            m_Window, m_Scene.get(), m_Registry);
-    m_VulkanContext->init(m_FrameBufferSize);
-    m_UiLayer = std::make_unique<ui::UiLayer>();
+    _vulkanContext = std::make_shared<core::vk::Context>(
+            _window, _scene.get(), _registry, _dispatcher);
+    _vulkanContext->init(_frameBufferSize);
+    _uiLayer = std::make_unique<ui::UiLayer>(_dispatcher);
 
-    m_Scene->loadModels(m_VulkanContext->getDevice());
+    _scene->loadModels(_vulkanContext->getDevice());
 
     {
         // append descriptor resources to context
     }
 
-    m_VulkanContext->generatePipelines();
+    _vulkanContext->generatePipelines();
 
-    ImGui_ImplGlfw_InitForVulkan(m_Window.get(), true);
+    ImGui_ImplGlfw_InitForVulkan(_window.get(), true);
 
-    m_Log->info("Initialization complete, entering mainloop");
+    _log->info("Initialization complete, entering mainloop");
     mainloop();
 }
 
@@ -71,7 +71,7 @@ void Application::initilizeGLFW()
 
     if(glfwVulkanSupported() == GLFW_FALSE)
     {
-        m_Log->critical("No Vulkan support! Exiting... ");
+        _log->critical("No Vulkan support! Exiting... ");
         throw std::runtime_error("No vulkan support");
     }
 
@@ -81,48 +81,48 @@ void Application::initilizeGLFW()
     auto* monitor = glfwGetPrimaryMonitor();
     const auto* mode = glfwGetVideoMode(monitor);
 
-    m_MonitorResolution.width = static_cast<uint32_t>(mode->width);
-    m_MonitorResolution.height = static_cast<uint32_t>(mode->height);
+    _monitorResolution.width = static_cast<uint32_t>(mode->width);
+    _monitorResolution.height = static_cast<uint32_t>(mode->height);
 
-    m_Log->info(
+    _log->info(
             "Display resolution ({}, {})",
-            m_MonitorResolution.width,
-            m_MonitorResolution.height);
+            _monitorResolution.width,
+            _monitorResolution.height);
 
-    m_Window = std::shared_ptr<GLFWwindow>(
+    _window = std::shared_ptr<GLFWwindow>(
             glfwCreateWindow(
-                    m_BaseConfig.width,
-                    m_BaseConfig.height,
+                    _baseConfig.width,
+                    _baseConfig.height,
                     "MySummerJob the Game",
                     nullptr,
                     nullptr),
             [](GLFWwindow* window) { glfwDestroyWindow(window); });
 
-    assert(m_Window);
+    assert(_window);
 
     int width = 0;
     int height = 0;
-    glfwGetFramebufferSize(m_Window.get(), &width, &height);
+    glfwGetFramebufferSize(_window.get(), &width, &height);
 
     // If these are zero, window is minimized?
     if(width <= 0 && height <= 0)
     {
-        m_Log->warn("Invalid window resolutions ({}, {})", width, height);
+        _log->warn("Invalid window resolutions ({}, {})", width, height);
         throw std::runtime_error("Invalid resolution");
     }
 
-    m_FrameBufferSize.width = static_cast<uint32_t>(width);
-    m_FrameBufferSize.height = static_cast<uint32_t>(height);
+    _frameBufferSize.width = static_cast<uint32_t>(width);
+    _frameBufferSize.height = static_cast<uint32_t>(height);
 
-    m_Log->info(
+    _log->info(
             "GLFW Window surface created with size of ({}, {})", width, height);
 
-    glfwSetWindowUserPointer(m_Window.get(), this);
-    glfwSetKeyCallback(m_Window.get(), onKeyCallback);
-    glfwSetFramebufferSizeCallback(m_Window.get(), onFrameBufferResized);
-    glfwSetCursorPosCallback(m_Window.get(), onCursorPositionCallback);
-    glfwSetScrollCallback(m_Window.get(), onMouseScrollCallback);
-    glfwSetMouseButtonCallback(m_Window.get(), onMouseButtonCallback);
+    glfwSetWindowUserPointer(_window.get(), this);
+    glfwSetKeyCallback(_window.get(), onKeyCallback);
+    glfwSetFramebufferSizeCallback(_window.get(), onFrameBufferResized);
+    glfwSetCursorPosCallback(_window.get(), onCursorPositionCallback);
+    glfwSetScrollCallback(_window.get(), onMouseScrollCallback);
+    glfwSetMouseButtonCallback(_window.get(), onMouseButtonCallback);
 }
 
 // -----------------------------------------------------------------------------
@@ -132,23 +132,27 @@ void Application::initilizeGLFW()
 
 void Application::mainloop()
 {
-    while(!glfwWindowShouldClose(m_Window.get()))
+    while(!glfwWindowShouldClose(_window.get()))
     {
         Timer timer;
         glfwPollEvents();
-        m_Camera->update(m_FrameTime);
 
-        m_UiLayer->begin();
+        // Dispatch all enqueued events
+        _dispatcher.update();
+
+        _camera->update(_frameTime);
+
+        _uiLayer->begin();
         { // UI related updates
             auto& io = ImGui::GetIO();
 
             ImGui::Begin("Performance metrics");
             ImGui::Text(
                     "%.3f ms / %.0f fps", 1000.0f / io.Framerate, io.Framerate);
-            ImGui::Text("framecounter: %lu frame", m_FrameCounter);
+            ImGui::Text("framecounter: %lu frame", _frameCounter);
             ImGui::End();
 
-            ImGui::Begin("Settings");
+            // ImGui::Begin("Settings");
             // if(auto filename = m_UiLayer->openFileButton("Load Model");
             //    !filename.empty())
             // {
@@ -156,16 +160,16 @@ void Application::mainloop()
             //     m_Scene->addModel(m_VulkanContext->getDevice(), filename);
             //     m_VulkanContext->recreateSwapchain();
             // }
-            ImGui::End();
+            // ImGui::End();
         }
-        m_UiLayer->end();
+        _uiLayer->end();
 
-        m_Scene->updatePositions(m_ApprunTime);
-        m_VulkanContext->renderFrame(m_FrameTime);
+        _scene->updatePositions(_apprunTime);
+        _vulkanContext->renderFrame(_frameTime);
 
-        m_FrameTime = timer.elapsed();
-        m_ApprunTime += m_FrameTime;
-        m_FrameCounter += 1;
+        _frameTime = timer.elapsed();
+        _apprunTime += _frameTime;
+        _frameCounter += 1;
     }
 }
 
@@ -182,15 +186,15 @@ void Application::handleKeyboardInput(int key, bool isPressed, int mods)
 {
     (void)mods;
 
-        if(key == GLFW_KEY_ESCAPE && isPressed)
-        {
-            glfwSetWindowShouldClose(m_Window.get(), true);
-            return;
-        }
-        if(key == GLFW_KEY_LEFT_SHIFT)
-        {
-            m_Keyboard.lShift = isPressed;
-        }
+    if(key == GLFW_KEY_ESCAPE && isPressed)
+    {
+        glfwSetWindowShouldClose(_window.get(), true);
+        return;
+    }
+    if(key == GLFW_KEY_LEFT_SHIFT)
+    {
+        _keyboard.lShift = isPressed;
+    }
 }
 
 void Application::onKeyCallback(
@@ -219,49 +223,49 @@ void Application::handleMouseButtonInput(int button, bool isPressed)
 {
     if(button == GLFW_MOUSE_BUTTON_LEFT)
     {
-        m_Mouse.left = isPressed;
+        _mouse.left = isPressed;
     }
     else if(button == GLFW_MOUSE_BUTTON_MIDDLE)
     {
-        m_Mouse.middle = isPressed;
+        _mouse.middle = isPressed;
     }
     else if(button == GLFW_MOUSE_BUTTON_RIGHT)
     {
-        m_Mouse.right = isPressed;
+        _mouse.right = isPressed;
     }
 }
 
 void Application::handleMouseScrollInput(double yoffset)
 {
-    m_Camera->updateZoom(yoffset);
+    _camera->updateZoom(yoffset);
 }
 
 void Application::handleMousePositionInput(double xpos, double ypos)
 {
     const glm::vec2 newPosition(xpos, ypos);
-    const glm::vec2 delta = m_Mouse.position - newPosition;
-    m_Mouse.position = newPosition;
+    const glm::vec2 delta = _mouse.position - newPosition;
+    _mouse.position = newPosition;
 
-    if(m_Mouse.middle)
+    if(_mouse.middle)
     {
-        if(m_Keyboard.lShift)
+        if(_keyboard.lShift)
         {
-            m_Camera->pan(delta.x, delta.y);
+            _camera->pan(delta.x, delta.y);
         }
         else
         {
-            m_Camera->updateRotation(delta.x, delta.y);
+            _camera->updateRotation(delta.x, delta.y);
         }
     }
 }
 
 void Application::handleFramebufferResize(int width, int height)
 {
-    m_FrameBufferSize.width = static_cast<uint32_t>(width);
-    m_FrameBufferSize.height = static_cast<uint32_t>(height);
+    _frameBufferSize.width = static_cast<uint32_t>(width);
+    _frameBufferSize.height = static_cast<uint32_t>(height);
 
-    m_Camera->setProjection(m_FrameBufferSize.width, m_FrameBufferSize.height);
-    m_VulkanContext->m_FrameBufferResized = true;
+    _camera->setProjection(_frameBufferSize.width, _frameBufferSize.height);
+    _vulkanContext->m_FrameBufferResized = true;
 }
 
 void Application::onWindowResized(GLFWwindow* window, int width, int height)

@@ -99,12 +99,6 @@ private:
     VkBuffer m_MaterialBuffer = VK_NULL_HANDLE;
     VmaAllocation m_MaterialMemory = VK_NULL_HANDLE;
 
-    struct
-    {
-        VkDescriptorPool pool = VK_NULL_HANDLE;
-        VkDescriptorSetLayout layout = VK_NULL_HANDLE;
-        VkDescriptorSet set = VK_NULL_HANDLE;
-    } m_Descriptors;
 };
 
 } // namespace core::model

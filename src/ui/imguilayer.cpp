@@ -3,18 +3,48 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 
+#include <fmt/printf.h>
+
 namespace ui
 {
+UiLayer::UiLayer(entt::dispatcher& disp) : _conn(disp, this)
+{
+    _conn.attach<event::UiCameraUpdate>();
+}
+
 void UiLayer::begin()
 {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     dockspace();
+    setDebugTab();
 }
 
 void UiLayer::end()
 {
     ImGui::Render();
+}
+
+void UiLayer::setDebugTab()
+{
+    const auto& cameraPos = _events.cameraUpdate.cameraPos;
+    const auto& lookdir = _events.cameraUpdate.lookDir;
+
+    const auto& fov = _events.cameraUpdate.fov;
+
+    ImGui::Begin("Camera");
+    ImGui::Text("Field of view (%.2f) degrees", fov);
+    ImGui::Text(
+            "Position (%.2f, %.2f, %.2f)",
+            cameraPos.x,
+            cameraPos.y,
+            cameraPos.z);
+    ImGui::Text(
+            "Direction (%.2f, %.2f, %.2f)",
+            lookdir.x,
+            lookdir.y,
+            lookdir.z);
+    ImGui::End();
 }
 
 void UiLayer::dockspace()
@@ -112,6 +142,11 @@ auto UiLayer::openFileButton(std::string_view caption) const -> std::string
     }
 
     return filename;
+}
+
+void UiLayer::onEvent(event::UiCameraUpdate const& event)
+{
+    _events.cameraUpdate = event;
 }
 
 } // namespace ui

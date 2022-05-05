@@ -1,6 +1,5 @@
 #include "core/model/model.h"
 
-#include "core/vulkan/descriptorgen.h"
 #include "logs/log.h"
 #include "tinyobj/tiny_obj_loader.h"
 #include "core/scene/components.h"

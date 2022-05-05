@@ -176,10 +176,6 @@ void Swapchain::create(bool vsync)
         if(capabilities.currentExtent.width
            != std::numeric_limits<uint32_t>::max())
         {
-            log->info(
-                    "CurrentExtent({}, {})",
-                    capabilities.currentExtent.width,
-                    capabilities.currentExtent.height);
             return capabilities.currentExtent;
         }
         else

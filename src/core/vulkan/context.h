@@ -2,15 +2,17 @@
 
 // #include "buffer.h"
 #include "config/config.h"
-#include "debugutils.h"
 #include "core/model/model.h"
+#include "core/scene/camera.h"
+#include "core/scene/scene.h"
 #include "core/texture/texture.h"
 #include "core/vulkan/descriptorgen.h"
 #include "core/vulkan/device.h"
-#include "core/scene/camera.h"
-#include "core/scene/scene.h"
-#include "swapchain.h"
+#include "debugutils.h"
+#include "event/sub.h"
+#include "event/setupevents.h"
 #include "imguisetup.h"
+#include "swapchain.h"
 
 #include "logs/log.h"
 #include "entt/entity/registry.hpp"
@@ -33,7 +35,8 @@ class Context final
 public:
     Context(std::shared_ptr<GLFWwindow> window,
             scene::Scene* scene,
-            entt::registry& registry);
+            entt::registry& registry,
+            entt::dispatcher& dispatcher);
 
     ~Context();
 
@@ -48,6 +51,8 @@ public:
 
     bool m_FrameBufferResized = false;
     bool renderImGui = true;
+
+    void onEvent(event::DescriptorSetAllocateEvent const& event);
 
 private:
     void updateOverlay(float dt);
@@ -95,6 +100,7 @@ private:
 
     scene::Scene* m_Scene = nullptr;
     entt::registry& m_Registry;
+    event::Subs<Context> m_conn;
 
     VkInstance m_Instance = VK_NULL_HANDLE;
     VkRenderPass m_Renderpass = VK_NULL_HANDLE;

@@ -4,6 +4,7 @@
 #include "core/scene/camera.h"
 #include "core/scene/scene.h"
 #include "core/vulkan/context.h"
+#include "event/sub.h"
 #include "logs/log.h"
 #include "ui/imguilayer.h"
 
@@ -46,26 +47,27 @@ private:
             GLFWwindow* window, double xoffset, double yoffset);
 
 
-    logs::Logger m_Log;
-    config::BaseConfig m_BaseConfig;
-    std::shared_ptr<GLFWwindow> m_Window;
-    std::shared_ptr<core::vk::Context> m_VulkanContext;
-    std::shared_ptr<core::scene::TrackBall> m_Camera;
-    std::shared_ptr<core::scene::Scene> m_Scene;
-    std::unique_ptr<ui::UiLayer> m_UiLayer;
+    logs::Logger _log;
+    config::BaseConfig _baseConfig;
+    std::shared_ptr<GLFWwindow> _window;
+    std::shared_ptr<core::vk::Context> _vulkanContext;
+    std::shared_ptr<core::scene::TrackBall> _camera;
+    std::shared_ptr<core::scene::Scene> _scene;
+    std::unique_ptr<ui::UiLayer> _uiLayer;
 
-    entt::registry m_Registry;
+    entt::registry _registry;
+    entt::dispatcher _dispatcher;
 
-    VkExtent2D m_FrameBufferSize = {0, 0};
-    VkExtent2D m_MonitorResolution = {0, 0};
+    VkExtent2D _frameBufferSize = {0, 0};
+    VkExtent2D _monitorResolution = {0, 0};
 
     // Total runtime of application
-    float m_ApprunTime = 0.0f;
+    float _apprunTime = 0.0f;
 
     // Total time taken by one cycle of mainloop
-    float m_FrameTime = 0.0f;
+    float _frameTime = 0.0f;
 
-    uint64_t m_FrameCounter = 0;
+    uint64_t _frameCounter = 0;
 
     // TODO move these away
     struct
@@ -74,12 +76,12 @@ private:
         bool left = false;
         bool middle = false;
         bool right = false;
-    } m_Mouse;
+    } _mouse;
 
     struct
     {
         bool lShift = false;
-    } m_Keyboard;
+    } _keyboard;
 };
 
 } // namespace app

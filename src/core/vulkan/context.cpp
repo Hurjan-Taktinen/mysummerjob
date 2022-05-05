@@ -21,12 +21,14 @@ namespace core::vk
 Context::Context(
         std::shared_ptr<GLFWwindow> window,
         scene::Scene* scene,
-        entt::registry& registry) :
+        entt::registry& registry,
+        entt::dispatcher& dispatcher) :
     m_Log(logs::Log::create("Vulkan Context")),
     m_Config(config::Config::getVulkanConfig()),
     m_Window(std::move(window)),
     m_Scene(scene),
-    m_Registry(registry)
+    m_Registry(registry),
+    m_conn(dispatcher, this)
 {
     m_Log->info("Vulkan context created");
 }
@@ -1106,6 +1108,7 @@ void Context::setupDescriptors()
         layoutInfo.bindingCount = static_cast<uint32_t>(layoutBindings.size());
         layoutInfo.pBindings = layoutBindings.data();
 
+        // TODO AWAW alloc for every image
         VK_CHECK(vkCreateDescriptorSetLayout(
                 m_Device->getLogicalDevice(),
                 &layoutInfo,
@@ -1114,7 +1117,7 @@ void Context::setupDescriptors()
     }
 
     { // Allocate descriptor sets
-        m_DescriptorSet.resize(m_UniformBuffer.size());
+        m_DescriptorSet.resize(m_Swapchain->getImageCount());
         std::vector<VkDescriptorSetLayout> layouts(
                 m_Swapchain->getImageCount(), m_DescSetLayout);
 
@@ -1317,6 +1320,13 @@ void Context::cleanupSwapchain()
             m_RenderingCommandBuffers.data());
 
     vkDestroyRenderPass(m_Device->getLogicalDevice(), m_Renderpass, nullptr);
+}
+
+void Context::onEvent(event::DescriptorSetAllocateEvent const& event)
+{
+    auto set = m_DescriptorSetGenerator->generateSet(
+            m_DescriptorPool, m_DescSetLayout);
+    event.callback(set);
 }
 
 } // namespace core::vk

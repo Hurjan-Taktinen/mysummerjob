@@ -108,6 +108,11 @@ void TrackBall::update(float dt)
 {
     (void)dt;
     updateViewMatrix();
+
+    auto pos = toCartesian();
+    auto lookDir = glm::normalize(m_Target - pos);
+    m_conn.enqueue(event::UiCameraUpdate{
+            .cameraPos = pos, .lookDir = lookDir, .fov = m_Fov});
 }
 
 // ----------------------------------------------------------------------------
@@ -120,8 +125,7 @@ void TrackBall::updateViewMatrix()
     // auto offset = toCartesian();
     // matrices.view =
     //         glm::lookAt(m_Position + offset, m_Target, m_Up);
-    matrices.view =
-            glm::lookAt(toCartesian(), m_Target, m_Up);
+    matrices.view = glm::lookAt(toCartesian(), m_Target, m_Up);
 }
 
 // ----------------------------------------------------------------------------
